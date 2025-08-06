@@ -1,22 +1,42 @@
-import express from "express";
-import cors from "cors";
-import mongoose from "mongoose";
+import express from "express"
+import cors from "cors"
+import mongoose from "mongoose"
+import dotenv from "dotenv"
+import authRoutes from "./routes/auth.js"
+import "./models/user.js"
 
-const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/final-project";
-mongoose.connect(mongoUrl);
-mongoose.Promise = Promise;
+dotenv.config()
+
+const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/final-project"
+mongoose.connect(mongoUrl)
+mongoose.Promise = Promise
 
 const port = process.env.PORT || 8080;
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+app.use(cors())
+app.use(express.json())
+
+app.use(authRoutes)
+
+//Routes
+
+//app.use("/api/auth", authRoutes)// förklaring för mig behövs
 
 app.get("/", (req, res) => {
-  res.send("Hello Technigo!");
-});
+  res.send("Hello Technigo!")
+})
+
+app.get("/plants", (req, res) => {
+  res.send("Gets plants")
+})
+
+app.get("/calendar", (req, res) => {
+  const month = req.query
+  res.send(`calender for month ${month}`)
+}) //Kolla endpoint
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
-});
+  console.log(`Server running on http://localhost:${port}`)
+})
