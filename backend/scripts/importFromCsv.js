@@ -1,23 +1,36 @@
-// scripts/importFromCsv.js
 import fs from "fs"
 import csv from "csv-parser"
 import mongoose from "mongoose"
 import Plant from "../models/plant.js"
 
-mongoose.connect("mongodb://localhost/final-project")
+const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/final-project"
+mongoose.connect(mongoUrl)
+mongoose.Promise = Promise
+
+const results = []
 
 fs.createReadStream("data/plants.csv")
   .pipe(csv())
-  .on("data", async (row) => {
-    const plant = new Plant({
-      scientificName: row.scientificName,
-      swedishName: row.swedishName,
-      description: row.description,
-      sunlight: row.sunlight,
+  .on("data", (data) => {
+    results.push({
+      scientificName: data.scientificName,
+      swedishName: data.swedishName,
+      description: data.description,
+      sunlight: data.sunlight,
+      watering: data.watering,
+      imageUrl: data.imageUrl,
+      companionPlants: data.companionPlants ? data.companionPlants.split(";") : [],
+      edibleParts: data.edibleParts ? data.edibleParts.split(";") : [],
     })
-    await plant.save()
   })
-  .on("end", () => {
-    console.log("CSV-import done")
-    mongoose.disconnect()
+  .on("end", async () => {
+    try {
+      await Plant.deleteMany({})
+      await Plant.insertMany(results)
+      console.log("🌿 Växter importerade från CSV!")
+    } catch (err) {
+      console.error("❌ Fel vid import:", err)
+    } finally {
+      mongoose.disconnect()
+    }
   })

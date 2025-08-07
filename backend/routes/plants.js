@@ -5,11 +5,27 @@ const plantRouter = express.Router()
 
 // GET all plants
 plantRouter.get("/plants", async (req, res) => {
+  const { month, companion } = req.query;
+
+  const query = {};
+
+  if (month) {
+    query[`calendar.${month}`] = true
+  }
+
+  if (companion) {
+    query.companions = companion
+  }
+
   try {
-    const plants = await Plant.find()
+    const plants = await Plant.find(query)
     res.json(plants)
   } catch (error) {
-    res.status(500).json({ message: "Failed to get plants", error: error.message })
+    res.status(500).json({
+      success: false,
+      message: "Failed to get plants",
+      error: error.message
+    })
   }
 })
 
