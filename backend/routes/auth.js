@@ -1,16 +1,15 @@
-
 import express from "express"
 import bcrypt from "bcrypt"
 import crypto from "crypto"
-import User from "../models/user.js"
 import dotenv from "dotenv"
+import User from "../models/user.js" // Glöm inte .js om du har "type": "module"
 
 dotenv.config()
 
 const router = express.Router()
 const JWT_SECRET = process.env.JWT_SECRET
 
-
+// 🧠 Middleware – kontrollera accessToken
 export const authenticationUser = async (req, res, next) => {
   try {
     const accessToken = req.headers.authorization
@@ -32,44 +31,62 @@ export const authenticationUser = async (req, res, next) => {
   }
 }
 
-
-
-// Register new user
-
+// 🔐 Register user
 router.post("/signup", async (req, res) => {
   try {
     const { username, email, password } = req.body
-    const user = new User({
-      username,
-      password: await bcrypt.hashSync(password), // Hash the password
-      email
-    })
-    await user.save()
-    res.status(201).json({
-      id: user._id,
-      accessToken: user.accessToken,
 
-    })
-  } catch (error) {
-    if (!User) {
+    const existingUser = await User.findOne({ email })
+
+    if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "Username or email already exists",
-        error: error.message
+        message: "Email already exists"
       })
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword,
+    })
+
+    await newUser.save()
+
+    res.status(201).json({
+      success: true,
+      userId: newUser._id,
+      accessToken: newUser.accessToken,
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Could not create user",
+      error: error.message,
+    })
   }
 })
 
-// Login
-
+// 🔓 Login
 router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body
 
-  const user = await User.findOne({ email: req.body.email })
-  if (user && bcrypt.compareSync(req.body.password, user.password)) {
-    res.json({ userId: user._id, accessToken: user.accessToken })
-  } else {
-    res.status(401).json({ notFound: true, message: "Invalid email or password" })
+    const user = await User.findOne({ email })
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ success: false, message: "Invalid email or password" })
+    }
+
+    res.status(200).json({
+      success: true,
+      userId: user._id,
+      accessToken: user.accessToken,
+    })
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Login failed", error: error.message })
   }
 })
 

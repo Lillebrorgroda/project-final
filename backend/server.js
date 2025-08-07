@@ -3,6 +3,7 @@ import cors from "cors"
 import mongoose from "mongoose"
 import dotenv from "dotenv"
 import authRoutes from "./routes/auth.js"
+import plantRouter from "./routes/plants.js"
 import "./models/user.js"
 
 dotenv.config()
@@ -18,10 +19,9 @@ app.use(cors())
 app.use(express.json())
 
 app.use(authRoutes)
+app.use(plantRouter)
 
 //Routes
-
-//app.use("/api/auth", authRoutes)// förklaring för mig behövs
 
 app.get("/", (req, res) => {
   res.send("Hello Technigo!")
