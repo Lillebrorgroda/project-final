@@ -9,9 +9,22 @@ plantRouter.get("/plants", async (req, res) => {
 
   const query = {};
 
-  if (month) {
-    query[`calendar.${month}`] = true
+  if (startMonth && endMonth) {
+    const start = Number(startMonth);
+    const end = Number(endMonth);
+
+    if (start <= end) {
+      // Normal period, t.ex. 3–5
+      query.sowingMonths = { $gte: start, $lte: end };
+    } else {
+      // Om perioden går över årsskiftet, t.ex. 11–2
+      query.$or = [
+        { sowingMonths: { $gte: start } },
+        { sowingMonths: { $lte: end } }
+      ];
+    }
   }
+
 
   if (companion) {
     query.companions = companion

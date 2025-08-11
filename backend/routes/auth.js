@@ -1,8 +1,8 @@
 import express from "express"
 import bcrypt from "bcrypt"
-import crypto from "crypto"
+//import crypto from "crypto"
 import dotenv from "dotenv"
-import User from "../models/user.js" // Glöm inte .js om du har "type": "module"
+import User from "../models/user.js"
 
 dotenv.config()
 
@@ -91,3 +91,4 @@ router.post("/login", async (req, res) => {
 })
 
 export default router
+

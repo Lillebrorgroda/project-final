@@ -1,4 +1,4 @@
-import fs from "fs"
+import fs from "fs" // Import Node.js built in file system-modal 
 import csv from "csv-parser"
 import mongoose from "mongoose"
 import Plant from "../models/plant.js"
@@ -10,6 +10,7 @@ dotenv.config()
 const API_KEY = process.env.PERENUAL_API_KEY
 const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/final-project"
 mongoose.connect(mongoUrl)
+
 
 const readCSVAndCombine = async () => {
   const results = []
