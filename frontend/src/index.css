@@ -1,0 +1,53 @@
+body {
+  font-family: sans-serif;
+  padding: 20px;
+}
+
+/* Header / Logout-knapp */
+.header {
+  text-align: right;
+  margin-bottom: 10px;
+}
+
+.header span {
+  margin-right: 10px;
+}
+
+button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #4caf50;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+/* Landningssida */
+.landing {
+  text-align: center;
+}
+
+.landing button {
+  margin: 0 5px;
+}
+
+/* Växtlista */
+.plant-section {
+  margin-bottom: 20px;
+}
+
+.plant-list {
+  list-style: none;
+  padding: 0;
+}
+
+.plant-list li {
+  background: #f4f4f4;
+  padding: 8px;
+  margin-bottom: 5px;
+  border-radius: 4px;
+}

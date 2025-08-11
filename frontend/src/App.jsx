@@ -1,113 +1,64 @@
 import { useState, useEffect } from "react";
-import authAPI from "./api/auth";
-import plantsAPI from "./api/plants";
-import SignUp from "./pages/SignupPage";
-import Login from "./pages/LoginPage";
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
+import SignUpPage from "./pages/SignupPage";
+import LoginPage from "./pages/LoginPage";
+import PlantPage from "./pages/PlantsPage";
+import "./index.css";
+
+const LandingPage = () => (
+  <div className="landing">
+    <h2>Välkommen till trädgården!</h2>
+    <p>Vill du:</p>
+    <Link to="/signup"><button>Registrera dig</button></Link>
+    <Link to="/login"><button>Logga in</button></Link>
+    <Link to="/search"><button>Söka växt</button></Link>
+  </div>
+);
 
 const App = () => {
   const [token, setToken] = useState("");
-  const [plants, setPlants] = useState([]);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const [signupMessage, setSignupMessage] = useState("");
-
-  const handleSignup = async () => {
-    const res = await authAPI.signup(username, email, password);
-    if (res.accessToken) {
-      setSignupMessage(`Account created! Your accessToken: ${res.accessToken}`);
-      localStorage.setItem("token", res.accessToken);
-    } else {
-      setSignupMessage("Signup failed: " + (res.message || "Unknown error"));
-    }
-  };
-
-  const handleLogin = async () => {
-    const res = await authAPI.login(email, password);
-    if (res.accessToken) {
-      setToken(res.accessToken);
-      localStorage.setItem("token", res.accessToken);
-    } else {
-      alert("Login failed");
-    }
-  };
-
-  const loadPlants = async () => {
-    const res = await plantsAPI.getPlants(token);
-    setPlants(res);
-  };
-
-  const handleUsernameChange = (e) => setUsername(e.target.value);
-  const handleEmailChange = (e) => setEmail(e.target.value);
-  const handlePasswordChange = (e) => setPassword(e.target.value);
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     setToken("");
+    setUsername("");
     localStorage.removeItem("token");
-    setPlants([]);
+    navigate("/");
   };
 
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
-    if (savedToken) setToken(savedToken);
+    if (savedToken) {
+      setToken(savedToken);
+    }
   }, []);
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div>
+      {token && (
+        <div className="header">
+          <span>Inloggad som: {username || "Användare"}</span>
+          <button onClick={handleLogout}>Logga ut</button>
+        </div>
+      )}
+
       <h1>Plant Companion App</h1>
 
-      {!token ? (
-        <>
-          <SignUp
-            username={username}
-            email={email}
-            password={password}
-            onUsernameChange={handleUsernameChange}
-            onEmailChange={handleEmailChange}
-            onPasswordChange={handlePasswordChange}
-            onSignup={handleSignup}
-            signupMessage={signupMessage}
-          />
-          <hr />
-
-          <Login
-            email={email}
-            password={password}
-            onEmailChange={handleEmailChange}
-            onPasswordChange={handlePasswordChange}
-            onLogin={handleLogin}
-          />
-        </>
-      ) : (
-        <>
-          <div style={{ marginBottom: "20px" }}>
-            <p>Welcome, {username || "User"}!</p>
-            <p>Status: Logged in</p>
-            <button onClick={handleLogout} style={{ marginLeft: "10px" }}>
-              Logout
-            </button>
-          </div>
-
-          <div>
-            <h2>Your Plants</h2>
-            <button onClick={loadPlants} style={{ marginBottom: "10px" }}>
-              Load Plants
-            </button>
-
-            {plants.length === 0 ? (
-              <p>No plants loaded yet. Click "Load Plants" to see your plants.</p>
-            ) : (
-              <ul>
-                {plants.map((plant) => (
-                  <li key={plant._id}>{plant.name}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </>
-      )}
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/signup" element={<SignUpPage setToken={setToken} setUsername={setUsername} />} />
+        <Route path="/login" element={<LoginPage setToken={setToken} setUsername={setUsername} />} />
+        <Route path="/search" element={<PlantPage token={token} />} />
+      </Routes>
     </div>
   );
 };
 
-export default App;
+const AppWrapper = () => (
+  <Router>
+    <App />
+  </Router>
+);
+
+export default AppWrapper;
