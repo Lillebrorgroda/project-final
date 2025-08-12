@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Plant from "./models/plant.js";
+import Plant from "./models/plant.js"; // ändra path om din modell ligger annorlunda
 import axios from "axios";
 import dotenv from "dotenv";
 
@@ -27,7 +27,7 @@ const fetchFromPerenual = async (page = 1) => {
       },
     });
 
-    console.log("📡 API-svar:", response.data); // DEBUG: Visa hela svaret
+    console.log("📡 API-svar (förhandsgranskning):", JSON.stringify(response.data, null, 2));
 
     if (!Array.isArray(response.data.data)) {
       console.error("❌ API returnerar inte en lista i 'data'");
@@ -64,7 +64,7 @@ const seedAPIPlantsTest = async () => {
     let page = 1;
     let allPlants = [];
 
-    while (page <= 1) { // bara första sidan för test
+    while (page <= 1) { // endast första sidan för test
       const plants = await fetchFromPerenual(page);
       if (plants.length === 0) {
         console.error("⚠️ Inga växter hämtades — avbryter seedning");
@@ -91,5 +91,7 @@ const seedAPIPlantsTest = async () => {
   }
 };
 
-
-export default seedAPIPlantsTest;
+// Kör alltid när scriptet startas
+seedAPIPlantsTest()
+  .then(() => console.log("🌿 Klart!"))
+  .catch(err => console.error("💥 Fel vid körning:", err));
