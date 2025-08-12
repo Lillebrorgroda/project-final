@@ -1,13 +1,11 @@
 import express from "express"
 import bcrypt from "bcrypt"
-//import crypto from "crypto"
 import dotenv from "dotenv"
 import User from "../models/user.js"
 
 dotenv.config()
 
 const router = express.Router()
-const JWT_SECRET = process.env.JWT_SECRET
 
 // 🧠 Middleware – kontrollera accessToken
 export const authenticationUser = async (req, res, next) => {
@@ -42,6 +40,20 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Email already exists"
+      })
+    }
+
+    if (!username || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required"
+      })
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters"
       })
     }
 
