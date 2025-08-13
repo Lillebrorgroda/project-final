@@ -10,48 +10,84 @@ plantRouter.get("/plants", async (req, res) => {
     const { search, startMonth, endMonth, companion, sunlight, watering } = req.query
     const query = {}
 
+    console.log("🔍 Inkommande query params", req.query)
+
     // Textsökning på namn eller vetenskapligt namn
-    if (search) {
+    if (search && search.trim()) {
+      const serchRegex = { $regex: search.trim(), $options: "i" }
+
       query.$or = [
-        { swedishName: { $regex: search, $options: "i" } },
-        { scientificName: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } }
+        { scientificName: serchRegex },
+        { swedishName: serchRegex },
+        { commonName: serchRegex },
+        { description: serchRegex }
       ]
     }
+    /**
+        // Filtrering efter månad (om du har sådan data)
+        if (startMonth && endMonth) {
+          const start = Number(startMonth)
+          const end = Number(endMonth)
+    
+          if (start <= end) {
+            // Normal period, t.ex. 3–5
+            query.sowingMonths = { $gte: start, $lte: end }
+          } else {
+            // Om perioden går över årsskiftet, t.ex. 11–2
+            query.$or = [
+              { sowingMonths: { $gte: start } },
+              { sowingMonths: { $lte: end } }
+            ]
+          }
+        }
+    
+        // Filtrering efter kompanjonväxter
+        if (companion) {
+          query.companionPlants = { $in: [companion] }
+        }
+    
+        // Filtrering efter ljusbehov
+        if (sunlight) {
+          query.sunlight = { $in: [sunlight] }
+        }
+    
+        // Filtrering efter vattningsbehov
+        if (watering) {
+          query.watering = watering
+        }
+     */
+    console.log("🔍 Filter som skickas till MongoDB:", query)
 
-    // Filtrering efter månad (om du har sådan data)
-    if (startMonth && endMonth) {
-      const start = Number(startMonth)
-      const end = Number(endMonth)
+    console.log("📊 Filter som skickas till MongoDB:", JSON.stringify(query, null, 2))
 
-      if (start <= end) {
-        // Normal period, t.ex. 3–5
-        query.sowingMonths = { $gte: start, $lte: end }
-      } else {
-        // Om perioden går över årsskiftet, t.ex. 11–2
-        query.$or = [
-          { sowingMonths: { $gte: start } },
-          { sowingMonths: { $lte: end } }
-        ]
+
+    const plants = await Plant.find(query).limit(50)
+
+    console.log(`📊 Antal träffar: ${plants.length}`)
+    if (plants.length > 0) {
+      console.log("📌 Första träffen:", {
+        scientificName: plants[0].scientificName,
+        swedishName: plants[0].swedishName,
+        sunlight: plants[0].sunlight,
+        watering: plants[0].watering
+      })
+    } else {
+      console.log("⚠️ Inga träffar hittades.")
+
+      // Debug: Visa vad som finns i databasen
+      const totalCount = await Plant.countDocuments({})
+      console.log(`🔢 Totalt antal växter i databasen: ${totalCount}`)
+
+      if (totalCount > 0) {
+        const sample = await Plant.findOne().lean()
+        console.log("🔍 Exempel på växt i databasen:", {
+          scientificName: sample?.scientificName,
+          swedishName: sample?.swedishName,
+          sunlight: sample?.sunlight,
+          watering: sample?.watering
+        })
       }
     }
-
-    // Filtrering efter kompanjonväxter
-    if (companion) {
-      query.companionPlants = { $in: [companion] }
-    }
-
-    // Filtrering efter ljusbehov
-    if (sunlight) {
-      query.sunlight = { $in: [sunlight] }
-    }
-
-    // Filtrering efter vattningsbehov
-    if (watering) {
-      query.watering = watering
-    }
-
-    const plants = await Plant.find(query)
 
     res.json({
       success: true,
@@ -62,6 +98,39 @@ plantRouter.get("/plants", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to get plants",
+      error: error.message
+    })
+  }
+})
+
+// Debug endpoint - visa alla unika värden för filtrering
+plantRouter.get("/plants-debug", async (req, res) => {
+  try {
+    const uniqueSunlight = await Plant.distinct("sunlight")
+    const uniqueWatering = await Plant.distinct("watering")
+    const uniqueCompanions = await Plant.distinct("companionPlantNames")
+    const samplePlants = await Plant.find({}).limit(5).lean()
+
+    res.json({
+      success: true,
+      debug: {
+        totalCount: await Plant.countDocuments({}),
+        uniqueSunlight,
+        uniqueWatering,
+        uniqueCompanions,
+        samplePlants: samplePlants.map(p => ({
+          scientificName: p.scientificName,
+          swedishName: p.swedishName,
+          sunlight: p.sunlight,
+          watering: p.watering,
+          companionPlantNames: p.companionPlantNames
+        }))
+      }
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Debug failed",
       error: error.message
     })
   }
