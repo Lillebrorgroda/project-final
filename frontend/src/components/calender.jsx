@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 
 const Calender = () => {
@@ -8,6 +9,13 @@ const Calender = () => {
   const [currentYear, setCurrentYear] = useState(currentDate.getFullYear())
   const [selectedDate, setSelectedDate] = useState(currentDate)
   const [showEventPopup, setShowEventPopup] = useState(false)
+  const [event, setEvent] = useState([])
+  const [eventTime, setEventTime] = useState({
+    hours: "00",
+    minutes: "00"
+  })
+  const [eventText, setEventText] = useState("")
+  const [editingEvent, setEditingEvent] = useState(null)
 
 
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
@@ -24,15 +32,81 @@ const Calender = () => {
   }
 
   const handleDateClick = (day) => {
-    const clickedDate = new Date(currentYear, currentMonth, day + 1)
+    const clickedDate = new Date(currentYear, currentMonth, day)
     const today = new Date()
-    if (clickedDate >= today) {
+    if (clickedDate >= today || isSameDay(clickedDate, today)) {
       setSelectedDate(clickedDate)
       setShowEventPopup(true)
+      setEventTime({
+        hours: "00",
+        minutes: "00"
+      })
+      setEventText("")
+      setEditingEvent(null)
+
     }
   }
 
+  const isSameDay = (date1, date2) => {
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    )
 
+  }
+
+  const handleEventSubmit = () => {
+    const newEvent = {
+      id: editingEvent ? editingEvent.id : Date.now(),
+      date: selectedDate,
+      time: `${eventTime.hours.padStart(2, "0")}:${eventTime.minutes.padStart(2, "0")}`,
+      text: eventText
+    }
+
+    let updatedEvent = [...event]
+
+    if (editingEvent) {
+      updatedEvent = updatedEvent.map((e) => (e.id === editingEvent.id ? newEvent : e))
+    } else {
+      updatedEvent.push(newEvent)
+    }
+
+    updatedEvent.sort((a, b) => new Date(a.date) - new Date(b.date))
+
+    setEvent(updatedEvent)
+    setEventTime({
+      hours: "00",
+      minutes: "00"
+    })
+    setEventText("")
+    setShowEventPopup(false)
+    setEditingEvent(null)
+
+  }
+
+  const handleEditEvent = (event) => {
+    setSelectedDate(new Date(event.date))
+    setEventTime({
+      hours: event.time.split(":")[0],
+      minutes: event.time.split(":")[1]
+    })
+    setEventText(event.text)
+    setEditingEvent(event)
+    setShowEventPopup(true)
+  }
+
+  const handleDeleteEvent = (eventId) => {
+    const updatedEvent = event.filter((event) => event.id !== eventId)
+    setEvent(updatedEvent)
+
+  }
+
+  const handleTimeChange = (e) => {
+    const { name, value } = e.target
+    setEventTime((prev) => ({ ...prev, [name]: value.padStart(2, "0") }))
+
+  }
 
   return (
     <div className="calender-app">
@@ -72,29 +146,50 @@ const Calender = () => {
           <div className="event-popup">
             <div className="time-input">
               <div className="event-popup-time">Tid</div>
-              <input type="number" name="hours" min={0} max={24} className="hours" />
-              <input type="number" name="minutes" min={0} max={59} className="minutes" />
+              <input type="number"
+                name="hours"
+                min={0}
+                max={24}
+                className="hours"
+                value={eventTime.hours}
+                onChange={handleTimeChange}
+              />
+              <input type="number"
+                name="minutes"
+                min={0}
+                max={59}
+                className="minutes"
+                value={eventTime.minutes}
+                onChange={handleTimeChange}
+              />
             </div>
-            <textarea placeholder="Skriv uppgifter här (maximalt 60 tecken)" name="" id=""></textarea>
-            <button className="event-popup-btn">Lägg till</button>
+            <textarea placeholder="Skriv uppgifter här (maximalt 60 tecken)" value={eventText} onChange={(e) => {
+              if (e.target.value.length <= 60) {
+                setEventText(e.target.value);
+              } else {
+                alert("Maximalt 60 tecken tillåtna.");
+              }
+            }} name="" id=""></textarea>
+            <button className="event-popup-btn" onClick={handleEventSubmit}>{editingEvent ? "Uppdatera" : "Lägg till"}</button>
             <button className="event-popup-close" onClick={() => setShowEventPopup(false)}><i className="bx bx-x"></i></button>
-          </div>)}
-      </div>
+          </div>
+        )}
+        {event.map((event, index) => (
+          <div className="event" key={index}>
+            <div className="event-date-wrapper">
+              <div className="event-date">{`${monthsOfYear[event.date.getMonth()]} ${event.date.getDate()}, ${event.date.getFullYear()}`}</div>
+              <div className="event-time">{event.time}</div>
+            </div>
+            <div className="event-text">{event.text}</div>
+            <div className="event-buttons">
+              <i className="bx bx-edit" onClick={() => handleEditEvent(event)}></i>
+              <i className="bx bx-trash" onClick={() => handleDeleteEvent(event.id)}></i>
+            </div>
+          </div>
+        ))}
 
-      <div className="event">
-        <div className="event-date-wrapper">
-          <div className="event-date">1 Aug, 2024</div>
-          <div className="event-time">10:00</div>
-        </div>
-        <div className="event-text">Vattna blommorna</div>
-        <button className="event-buttons">
-          <i className="bx bx-edit"></i>
-          <i className="bx bx-trash"></i>
-        </button>
-      </div>
-
+      </div >
     </div >
-
   )
 }
 

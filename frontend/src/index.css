@@ -20,8 +20,10 @@
    background-color: #F0F8F5;
    display: grid;
    place-items: center;
+   overflow: hidden;
    perspective: 100rem;
    /* 3D-effekt*/
+
  }
 
  /* Header / Logout-knapp 
@@ -73,3 +75,9 @@ button:hover {
   border-radius: 4px;
 }
 */
+
+ @media (max-witdth: 500px) {
+   html {
+     font-size: 55%;
+   }
+ }
