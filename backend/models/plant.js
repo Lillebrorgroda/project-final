@@ -8,7 +8,6 @@ const plantSchema = new mongoose.Schema({
   },
   swedishName: {
     type: String,
-    required: true,
   },
   commonName: {
     type: String, // För engelska namn från API

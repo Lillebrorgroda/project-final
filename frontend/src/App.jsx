@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react
 import SignUpPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
 import PlantPage from "./pages/PlantsPage";
+import CalenderPage from "./pages/CalenderPage";
 import "./index.css";
 
 const LandingPage = () => (
@@ -50,6 +51,8 @@ const App = () => {
         <Route path="/signup" element={<SignUpPage setToken={setToken} setUsername={setUsername} />} />
         <Route path="/login" element={<LoginPage setToken={setToken} setUsername={setUsername} />} />
         <Route path="/search" element={<PlantPage token={token} />} />
+        <Route path="/calender" element={<CalenderPage setToken={setToken} setUsername={setUsername} />} />
+
       </Routes>
     </div>
   );

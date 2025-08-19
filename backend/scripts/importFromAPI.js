@@ -29,7 +29,7 @@ const searchPlantsInAPI = async (query, page = 1) => {
 }
 
 // Funktion för att hämta alla växter från API (utan sökterm)
-const getAllPlantsFromAPI = async (maxPages = 5) => {
+const getAllPlantsFromAPI = async (maxPages = 10) => {
   try {
     console.log(`🌿 Hämtar växter från API (max ${maxPages} sidor)`)
 
@@ -88,7 +88,7 @@ const convertAPIPlantToOurFormat = (apiPlant) => {
 }
 
 // Huvudfunktion för att importera från API
-const importFromAPI = async (searchTerms = [], getAllPlants = false, maxPages = 5) => {
+const importFromAPI = async (searchTerms = [], getAllPlants = false, maxPages = 10) => {
   try {
     await mongoose.connect(mongoUrl)
     console.log("✅ Ansluten till MongoDB")
@@ -168,7 +168,7 @@ const searchSpecificPlants = async () => {
 
 // 2. Hämta alla växter (begränsat antal sidor)
 const getAllPlants = async () => {
-  await importFromAPI([], true, 3) // Hämta 3 sidor (ca 90 växter)
+  await importFromAPI([], true, 10) // Hämta 3 sidor (ca 90 växter)
 }
 
 // 3. Sök efter svenska växter (på engelska)
