@@ -15,6 +15,7 @@ mongoose.Promise = Promise
 const port = process.env.PORT || 8080;
 const app = express();
 
+
 app.use(cors())
 app.use(express.json())
 
@@ -26,6 +27,8 @@ app.use(plantRouter)
 app.get("/", (req, res) => {
   res.send("Hello Technigo!")
 })
+
+
 
 app.get("/plants", (req, res) => {
   res.send("Gets plants")

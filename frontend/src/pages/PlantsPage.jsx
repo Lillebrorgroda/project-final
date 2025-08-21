@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import plantsAPI from "../api/plants";
+import { useNavigate } from "react-router-dom";
 
 const PlantPage = ({ token }) => {
   // Sökstatus
@@ -8,6 +9,7 @@ const PlantPage = ({ token }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   // Filter
   const [filters, setFilters] = useState({
@@ -97,6 +99,8 @@ const PlantPage = ({ token }) => {
         setMessage(`${plant.commonName || plant.swedishName} har sparats till databasen!`);
       } else {
         // Här kan du implementera logik för att spara till användarens favoriter
+        await plantsAPI.savePlantToAccount(plant._id, token)
+
         setMessage(`${plant.commonName || plant.swedishName} har sparats!`);
       }
     } catch (err) {
@@ -125,6 +129,8 @@ const PlantPage = ({ token }) => {
 
   return (
     <div className="plant-page">
+      <i className="bx bx-chevron-left" onClick={() => navigate("/")} ></i>
+      <img src="/Broccoli.jpg" alt="Broccoli" />
       <h2>Sök växter</h2>
 
       {/* Sökfält */}
@@ -143,7 +149,7 @@ const PlantPage = ({ token }) => {
         </div>
 
         {/* Filter */}
-        <div className="filters">
+        {/* <div className="filters">
           <h3>Filter</h3>
 
           <div className="filter-row">
@@ -237,7 +243,7 @@ const PlantPage = ({ token }) => {
               Rensa filter
             </button>
           </div>
-        </div>
+      </div>*/}
       </div>
 
       {/* Meddelanden */}

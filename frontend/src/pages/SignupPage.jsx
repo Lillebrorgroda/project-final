@@ -25,6 +25,8 @@ const SignupPage = ({ setToken, setUsername }) => {
 
   return (
     <div className="signup">
+      <i className="bx bx-chevron-left" onClick={() => navigate("/")} style={{ cursor: "pointer" }}></i>
+      <img src="/Broccoli.jpg" alt="Broccoli" />
       <h2>Registrera dig</h2>
       <input
         type="text"

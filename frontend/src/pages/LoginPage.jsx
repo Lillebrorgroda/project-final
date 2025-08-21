@@ -23,6 +23,7 @@ const LoginPage = ({ setToken, setUsername }) => {
 
   return (
     <div className="login">
+      <img src="/Broccoli.jpg" alt="Broccoli" />
       <h2>Logga in</h2>
       <input
         type="email"

@@ -4,6 +4,7 @@ import { authenticationUser } from "./auth.js"
 import axios from "axios"
 import dotenv from "dotenv"
 
+
 dotenv.config()
 
 const plantRouter = express.Router()
@@ -87,6 +88,7 @@ const saveAPIPlantToDatabase = async (apiPlant) => {
     return null
   }
 }
+
 
 // GET all plants - med sökning, filtrering OCH API-fallback
 plantRouter.get("/plants", async (req, res) => {
