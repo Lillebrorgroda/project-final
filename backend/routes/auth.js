@@ -10,10 +10,14 @@ const router = express.Router()
 // 🧠 Middleware – kontrollera accessToken
 export const authenticationUser = async (req, res, next) => {
   try {
-    const accessToken = req.headers.authorization
+    let accessToken = req.headers.authorization
 
     if (!accessToken) {
       return res.status(401).json({ loggedOut: true, message: "Access token missing" })
+    }
+
+    if (accessToken.startsWith("Bearer ")) {
+      accessToken = accessToken.slice(7)
     }
 
     const user = await User.findOne({ accessToken })
@@ -95,6 +99,7 @@ router.post("/login", async (req, res) => {
     res.status(200).json({
       success: true,
       userId: user._id,
+      username: user.username,
       accessToken: user.accessToken,
     })
   } catch (error) {

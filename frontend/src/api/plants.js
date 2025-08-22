@@ -27,7 +27,7 @@ const plantsAPI = {
     const url = `${BASE_URL}/plants${params.toString() ? '?' + params.toString() : ''}`;
 
     const res = await fetch(url, {
-      headers: token ? { Authorization: token } : {}
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
     });
 
     if (!res.ok) throw new Error("Nätverksfel vid sökning");
@@ -37,7 +37,7 @@ const plantsAPI = {
   // Hämta specifik växt
   getPlant: async (plantId, token) => {
     const res = await fetch(`${BASE_URL}/plants/${plantId}`, {
-      headers: token ? { Authorization: token } : {}
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
     });
     if (!res.ok) throw new Error("Kunde inte hämta växt");
     return await res.json();
@@ -49,7 +49,7 @@ const plantsAPI = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify(plant)
     });
@@ -63,7 +63,7 @@ const plantsAPI = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({ apiPlant })
     });
@@ -71,27 +71,16 @@ const plantsAPI = {
     return await res.json();
   },
 
-  /*savePlantToAccount: async (plant, token) => {
-    const res = await fetch(`${BASE_URL}/saved-plants`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token
-      },
-      body: JSON.stringify(plant)
-    });
-    if (!res.ok) throw new Error("Kunde inte spara växt");
-    return await res.json();
-  },*/
+
 
   savePlantToAccount: async (data, token, notes = "") => {
     const res = await fetch(`${BASE_URL}/plants/saved`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token
+        Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ data, notes })
+      body: JSON.stringify({ plantId: data, notes })
     });
     if (!res.ok) throw new Error("Kunde inte spara växt");
     return await res.json();
@@ -100,8 +89,8 @@ const plantsAPI = {
   getSavedPlants: async (token) => {
     const res = await fetch(`${BASE_URL}/plants/saved`, {
       headers: {
-        Authorization: token
-      }
+        Authorization: `Bearer ${token}`
+      },
     })
     if (!res.ok) throw new Error("Kunde inte hämta sparade växter");
     return await res.json()
@@ -112,7 +101,7 @@ const plantsAPI = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({ apiPlant, notes })
     });
@@ -127,7 +116,7 @@ const plantsAPI = {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify(updates)
     });
@@ -136,11 +125,11 @@ const plantsAPI = {
   },
 
   // Ta bort växt
-  deletePlant: async (plantId, token) => {
-    const res = await fetch(`${BASE_URL}/plants/${plantId}`, {
+  deletePlant: async (savedPlantId, token) => {
+    const res = await fetch(`${BASE_URL}/plants/${savedPlantId}`, {
       method: "DELETE",
       headers: {
-        Authorization: token
+        Authorization: `Bearer ${token}`
       }
     });
     if (!res.ok) throw new Error("Kunde inte ta bort växt");

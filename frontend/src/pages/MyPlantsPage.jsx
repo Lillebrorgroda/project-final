@@ -9,13 +9,14 @@ import "../index.css"
 
 const MyPlantsPage = () => {
 
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+  const token = localStorage.getItem("token")
   return (
     <div className="my-plant-page">
       <i className="bx bx-chevron-left" onClick={() => navigate("/")}></i>
       <img src="/Broccoli.jpg" alt="Broccoli" />
       <h2>Mina växter</h2>
-      <PlantList />
+      <PlantList token={token} />
     </div>
   )
 }

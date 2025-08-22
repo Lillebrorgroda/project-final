@@ -103,24 +103,66 @@ const ErrorMessage = styled.div`
   margin: 20px 0;
 `;
 
+const RemoveButton = styled.button`
+    background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+  
+  &:hover {
+    background: #c0392b;
+  }
+`
+
 const PlantList = ({ token }) => {
   const [savedPlants, setSavedPlants] = useState([]);
-  const [error, setError] = useState("");
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(true)
+
+
 
   useEffect(() => {
     const fetchSavedPlants = async () => {
+
+      if (!token) {
+        setError("Du måste vara inloggad.")
+        setLoading(false)
+        return
+      }
+
       try {
         const data = await plantsAPI.getSavedPlants(token);
-        setSavedPlants(data.savedPlants);
+        setSavedPlants(data.savedPlants || [])
       } catch (err) {
-        setError(err.message);
+        setError(err.message)
+      } finally {
+        setLoading(false)
       }
-    };
+    }
 
     if (token) {
       fetchSavedPlants();
     }
   }, [token]);
+
+  const handleRemove = async (savedPlantId) => {
+    if (!window.confirm("Är du säker på att du vill ta bort denna växt?")) return
+
+    try {
+      await plantsAPI.deleteSavedPlant(savedPlantId, token)
+      setSavedPlants(prev =>
+        prev.filter(entry => entry._id !== savedPlantId)
+      )
+    } catch (err) {
+      setError("Kunde inte ta bort växten: " + err.message)
+    }
+  }
+
+  if (loading) return <p>Laddar sparade växter...</p>
 
   if (error) return <ErrorMessage>{error}</ErrorMessage>;
 
@@ -132,7 +174,8 @@ const PlantList = ({ token }) => {
         <PlantGrid>
           {savedPlants.map((entry) => (
             <PlantCard key={entry._id}>
-              <PlantImage src={entry.plant.imageURL} alt={entry.plant.swedishName || entry.plant.commonName} />
+              <PlantImage
+                src={entry.plant.imageUrl || "/Frog.jpg"} alt={entry.plant.swedishName || entry.plant.commonName} />
               <PlantContent>
                 <PlantHeader>
                   <PlantName>{entry.plant.swedishName || entry.plant.commonName}</PlantName>
@@ -148,6 +191,7 @@ const PlantList = ({ token }) => {
                     <p>{entry.notes}</p>
                   </PlantNotes>
                 )}
+                <RemoveButton onClick={() => handleRemove(entry._id)}>Ta bort</RemoveButton>
               </PlantContent>
             </PlantCard>
           ))}

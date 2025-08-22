@@ -403,7 +403,12 @@ plantRouter.get("/plants/saved", authenticationUser, async (req, res) => {
 
     res.status(200).json({
       success: true,
-      savedPlants: user.savedPlants
+      savedPlants: user.savedPlants.map(sp => ({
+        _id: sp._id,
+        savedAt: sp.savedAt,
+        notes: sp.notes,
+        plant: sp.plant
+      }))
     })
   } catch (error) {
     console.error("❌ Error getting saved plants:", error)
@@ -500,29 +505,42 @@ plantRouter.put("/plants/:id", authenticationUser, async (req, res) => {
 })
 
 // DELETE plant (only for logged in users)
-plantRouter.delete("/plants/:id", authenticationUser, async (req, res) => {
+plantRouter.delete("/plants/saved/:savedPlantId", authenticationUser, async (req, res) => {
   try {
-    const deletedPlant = await Plant.findByIdAndDelete(req.params.id)
+    const { savedPlantId } = req.params
+    const user = req.user
 
-    if (!deletedPlant) {
+
+    // Find the saved plant entry
+    const index = user.savedPlants.findIndex(
+      (p) => p._id.toString() === savedPlantId
+    )
+
+    if (index === -1) {
       return res.status(404).json({
         success: false,
-        message: "Plant not found"
+        message: "Saved plant not found"
       })
     }
 
-    res.json({
+    // Remove it from the array
+    const removed = user.savedPlants.splice(index, 1)
+    await user.save()
+
+    res.status(200).json({
       success: true,
-      message: "Plant deleted successfully"
+      message: "Saved plant removed successfully",
+      removed: removed[0]
     })
   } catch (error) {
-    console.error("❌ Error deleting plant:", error)
+    console.error("❌ Error removing saved plant:", error)
     res.status(500).json({
       success: false,
-      message: "Failed to delete plant",
+      message: "Failed to remove saved plant",
       error: error.message
     })
   }
+
 })
 
 export default plantRouter

@@ -88,6 +88,8 @@ const PlantPage = ({ token }) => {
   // Spara vanlig växt till användarens sparade växter
 
   const handleSavePlant = async (plant, notes = "") => {
+
+    const token = localStorage.getItem("token")
     if (!token) {
       setError("Du måste vara inloggad för att spara växter.");
       return;
@@ -96,10 +98,10 @@ const PlantPage = ({ token }) => {
     try {
       if (plant.isFromAPI) {
         // Använd den kombinerade endpointen för API-växter
-        await plantsAPI.saveAPIPlantAndFavorite(plant, notes, token);
+        await plantsAPI.saveAPIPlantAndFavorite(plant, token, notes);
       } else {
         // Vanlig databas-växt, spara bara till favoriter
-        await plantsAPI.savePlantToAccount(plant._id, notes, token);
+        await plantsAPI.savePlantToAccount(plant._id, token, notes);
       }
 
       setMessage(`${plant.commonName || plant.swedishName} har sparats!`);
