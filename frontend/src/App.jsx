@@ -5,7 +5,8 @@ import SignUpPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
 import PlantPage from "./pages/PlantsPage";
 import CalenderPage from "./pages/CalenderPage";
-import AccountPage from "./pages/MyPlantsPage";
+import MyPlantsPage from "./pages/MyPlantsPage";
+import AccountPage from "./pages/AccountPage";
 import "./index.css";
 
 
@@ -45,16 +46,20 @@ const App = () => {
         <Route path="/search" element={<PlantPage token={token} />} />
         <Route path="/calender" element={<CalenderPage setToken={setToken} setUsername={setUsername} />} />
         <Route path="/account" element={<AccountPage setToken={setToken} setUsername={setUsername} />} />
+        <Route path="/plants/saved" element={<MyPlantsPage setToken={setToken} setUsername={setUsername} />} />
         <Route path="*" element={<h2>404 - Sidan hittades inte</h2>} />
 
       </Routes>
 
 
       <div className="footer">
-        <i className="fa-solid fa-calendar-days" onClick={() => navigate("/calender")}></i >
-        <i class="fa-solid fa-seedling" onClick={() => navigate("/account")}></i>
+        <Link to="/account"><i className="fa-solid fa-house"></i></Link>
         <i className="fa-solid fa-magnifying-glass" onClick={() => navigate("/search")}></i>
-        <Link to="/"><i className="fa-solid fa-house"></i></Link>
+        <i className="fa-solid fa-seedling" onClick={() => navigate("/plants/saved")}></i>
+        <i className="fa-solid fa-calendar-days" onClick={() => navigate("/calender")}></i >
+
+
+
       </div>
     </div>
   );

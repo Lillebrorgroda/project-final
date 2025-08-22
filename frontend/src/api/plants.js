@@ -1,4 +1,3 @@
-// src/api/plants.js
 const BASE_URL = "http://localhost:8080";
 
 const plantsAPI = {
@@ -46,7 +45,7 @@ const plantsAPI = {
 
   // Spara ny växt till databas
   savePlant: async (plant, token) => {
-    const res = await fetch(`${BASE_URL}/plants/save`, {
+    const res = await fetch(`${BASE_URL}/plants/saved`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -71,6 +70,56 @@ const plantsAPI = {
     if (!res.ok) throw new Error("Kunde inte spara API-växt till databas");
     return await res.json();
   },
+
+  /*savePlantToAccount: async (plant, token) => {
+    const res = await fetch(`${BASE_URL}/saved-plants`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token
+      },
+      body: JSON.stringify(plant)
+    });
+    if (!res.ok) throw new Error("Kunde inte spara växt");
+    return await res.json();
+  },*/
+
+  savePlantToAccount: async (data, token, notes = "") => {
+    const res = await fetch(`${BASE_URL}/plants/saved`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token
+      },
+      body: JSON.stringify({ data, notes })
+    });
+    if (!res.ok) throw new Error("Kunde inte spara växt");
+    return await res.json();
+  },
+
+  getSavedPlants: async (token) => {
+    const res = await fetch(`${BASE_URL}/plants/saved`, {
+      headers: {
+        Authorization: token
+      }
+    })
+    if (!res.ok) throw new Error("Kunde inte hämta sparade växter");
+    return await res.json()
+  },
+
+  saveAPIPlantAndFavorite: async (apiPlant, notes, token) => {
+    const res = await fetch(`${BASE_URL}/plants/save-and-favorite`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token
+      },
+      body: JSON.stringify({ apiPlant, notes })
+    });
+    if (!res.ok) throw new Error("Kunde inte spara API-växt");
+    return await res.json();
+  },
+
 
   // Uppdatera växt
   updatePlant: async (plantId, updates, token) => {

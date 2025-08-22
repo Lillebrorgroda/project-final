@@ -54,7 +54,7 @@ const userSchema = new mongoose.Schema({
 })
 
 // Index för bättre prestanda
-userSchema.index({ email: 1 });
+//userSchema.index({ email: 1 });
 userSchema.index({ accessToken: 1 });
 
 const User = mongoose.model("User", userSchema)

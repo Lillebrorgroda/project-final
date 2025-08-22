@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const plantSchema = new mongoose.Schema({
-  // Grundläggande information
+
   scientificName: {
     type: [String],
     required: true,

@@ -4,64 +4,66 @@ import { authenticationUser } from "./auth.js"
 import axios from "axios"
 import dotenv from "dotenv"
 
-
 dotenv.config()
 
 const plantRouter = express.Router()
 const API_KEY = process.env.PERENUAL_API_KEY
 
-// Funktion för att söka i API som fallback
+// Function to search in API as fallback
 const searchPlantInAPI = async (searchTerm) => {
   try {
-    console.log(`🔍 Söker i API efter: "${searchTerm}"`)
+    console.log(`🔍 Searching API for: "${searchTerm}"`)
 
     const response = await axios.get(`https://perenual.com/api/v2/species-list`, {
       params: {
         key: API_KEY,
         q: searchTerm,
       },
+      timeout: 10000 // Add timeout
     })
 
     const apiPlants = response.data.data || []
-    console.log(`📦 API returnerade ${apiPlants.length} resultat`)
+    console.log(`📦 API returned ${apiPlants.length} results`)
 
-    // Konvertera API-resultat till vårt format
+    // Convert API results to our format
     return apiPlants.map(apiPlant => ({
-      _id: `api_${apiPlant.id}`, // Temp ID för frontend
+      _id: `api_${apiPlant.id}`, // Temp ID for frontend
       scientificName: Array.isArray(apiPlant.scientific_name)
         ? apiPlant.scientific_name[0]
         : apiPlant.scientific_name || "",
-      swedishName: apiPlant.common_name || "Okänt svenska namn",
+      swedishName: apiPlant.common_name || "Unknown Swedish name",
       commonName: apiPlant.common_name || "",
       description: apiPlant.description || "",
       imageUrl: apiPlant.default_image?.medium_url || "",
-      sunlight: Array.isArray(apiPlant.sunlight) ? apiPlant.sunlight : [apiPlant.sunlight].filter(Boolean),
+      sunlight: Array.isArray(apiPlant.sunlight)
+        ? apiPlant.sunlight
+        : [apiPlant.sunlight].filter(Boolean),
       watering: apiPlant.watering ? [apiPlant.watering] : ["unknown"],
       perenualId: apiPlant.id,
       cycle: apiPlant.cycle || "",
       isEdible: false,
       companionPlantNames: [],
       edibleParts: [],
-      source: "api_live", // Markera som live API-resultat
-      isFromAPI: true, // Extra flagga för frontend
+      source: "api_live", // Mark as live API result
+      isFromAPI: true, // Extra flag for frontend
       createdAt: new Date()
     }))
   } catch (error) {
-    console.error(`❌ API-sökning misslyckades för "${searchTerm}":`, error.message)
+    console.error(`❌ API search failed for "${searchTerm}":`, error.message)
     return []
   }
 }
 
-// Funktion för att spara API-resultat till databas (valfritt)
+// Function to save API result to database (optional)
 const saveAPIPlantToDatabase = async (apiPlant) => {
   try {
-    // Kolla om växten redan finns
+    // Check if plant already exists
     const existingPlant = await Plant.findOne({ perenualId: apiPlant.perenualId })
 
     if (!existingPlant) {
       const plantData = {
         scientificName: apiPlant.scientificName,
-        swedishName: apiPlant.commonName || "Okänt svenska namn",
+        swedishName: apiPlant.commonName || "Unknown Swedish name",
         commonName: apiPlant.commonName,
         description: apiPlant.description,
         imageUrl: apiPlant.imageUrl,
@@ -78,27 +80,26 @@ const saveAPIPlantToDatabase = async (apiPlant) => {
 
       const newPlant = new Plant(plantData)
       await newPlant.save()
-      console.log(`💾 Sparade ny växt från API: ${plantData.commonName}`)
+      console.log(`💾 Saved new plant from API: ${plantData.commonName}`)
       return newPlant
     }
 
     return existingPlant
   } catch (error) {
-    console.error(`❌ Kunde inte spara API-växt:`, error.message)
+    console.error(`❌ Could not save API plant:`, error.message)
     return null
   }
 }
 
-
-// GET all plants - med sökning, filtrering OCH API-fallback
+// GET all plants - with search, filtering AND API fallback
 plantRouter.get("/plants", async (req, res) => {
   try {
     const { search, startMonth, endMonth, companion, sunlight, watering, includeAPI } = req.query
     const query = {}
 
-    console.log("🔍 Inkommande query params", req.query)
+    console.log("🔍 Incoming query params", req.query)
 
-    // Textsökning på namn eller vetenskapligt namn
+    // Text search on name or scientific name
     if (search && search.trim()) {
       const searchRegex = { $regex: search.trim(), $options: "i" }
 
@@ -110,18 +111,16 @@ plantRouter.get("/plants", async (req, res) => {
       ]
     }
 
-    // AKTIVERADE FILTER (tidigare kommenterade)
-
-    // Filtrering efter månad
+    // Month filtering
     if (startMonth && endMonth) {
       const start = Number(startMonth)
       const end = Number(endMonth)
 
       if (start <= end) {
-        // Normal period, t.ex. 3–5
+        // Normal period, e.g. 3–5
         query.sowingMonths = { $gte: start, $lte: end }
       } else {
-        // Om perioden går över årsskiftet, t.ex. 11–2
+        // If period spans year end, e.g. 11–2
         query.$or = query.$or ? [...query.$or,
         { sowingMonths: { $gte: start } },
         { sowingMonths: { $lte: end } }
@@ -132,52 +131,52 @@ plantRouter.get("/plants", async (req, res) => {
       }
     }
 
-    // Filtrering efter kompanjonväxter
+    // Companion plants filtering
     if (companion) {
       query.companionPlantNames = { $in: [companion] }
     }
 
-    // Filtrering efter ljusbehov
+    // Sunlight filtering
     if (sunlight) {
       query.sunlight = { $in: [sunlight] }
     }
 
-    // Filtrering efter vattningsbehov
+    // Watering filtering
     if (watering) {
       query.watering = { $in: [watering] }
     }
 
-    console.log("📊 Filter som skickas till MongoDB:", JSON.stringify(query, null, 2))
+    console.log("📊 Filters sent to MongoDB:", JSON.stringify(query, null, 2))
 
-    // Sök i databasen först
+    // Search database first
     const plants = await Plant.find(query).limit(50)
-    console.log(`📊 Antal träffar i databas: ${plants.length}`)
+    console.log(`📊 Database hits: ${plants.length}`)
 
     let allResults = plants
     let apiResults = []
 
-    // Om inga resultat i databas OCH det finns en sökterm, sök i API
+    // If no database results AND there's a search term, search API
     if (plants.length === 0 && search && search.trim() && includeAPI !== 'false') {
-      console.log("🌐 Inga resultat i databas, söker i API som fallback...")
+      console.log("🌐 No database results, searching API as fallback...")
       apiResults = await searchPlantInAPI(search.trim())
 
       if (apiResults.length > 0) {
-        console.log(`✨ Hittade ${apiResults.length} resultat i API`)
+        console.log(`✨ Found ${apiResults.length} results in API`)
         allResults = [...plants, ...apiResults]
       }
     }
 
-    // Debug om inga träffar alls
+    // Debug if no hits at all
     if (allResults.length === 0) {
-      console.log("⚠️ Inga träffar hittades varken i databas eller API.")
+      console.log("⚠️ No hits found in either database or API.")
 
-      // Debug: Visa vad som finns i databasen
+      // Debug: Show what's in the database
       const totalCount = await Plant.countDocuments({})
-      console.log(`📢 Totalt antal växter i databasen: ${totalCount}`)
+      console.log(`📢 Total plants in database: ${totalCount}`)
 
       if (totalCount > 0) {
         const sample = await Plant.findOne().lean()
-        console.log("🔍 Exempel på växt i databasen:", {
+        console.log("🔍 Example plant in database:", {
           scientificName: sample?.scientificName,
           swedishName: sample?.swedishName,
           sunlight: sample?.sunlight,
@@ -192,10 +191,11 @@ plantRouter.get("/plants", async (req, res) => {
       dbCount: plants.length,
       apiCount: apiResults.length,
       plants: allResults,
-      searchedInAPI: apiResults.length > 0, // Info för frontend
+      searchedInAPI: apiResults.length > 0, // Info for frontend
       searchTerm: search || null
     })
   } catch (error) {
+    console.error("❌ Error in GET /plants:", error)
     res.status(500).json({
       success: false,
       message: "Failed to get plants",
@@ -204,16 +204,18 @@ plantRouter.get("/plants", async (req, res) => {
   }
 })
 
-// Spara växt till användarens sparade växter
-plantRouter.post("/plants/save", authenticationUser, async (req, res) => {
+// Save plant to user's saved plants
+plantRouter.post("/plants/saved", authenticationUser, async (req, res) => {
   try {
     const { plantId, notes } = req.body
+
     if (!plantId) {
       return res.status(400).json({
         success: false,
         message: "Plant ID is required"
       })
     }
+
     const plant = await Plant.findById(plantId)
     if (!plant) {
       return res.status(404).json({
@@ -221,21 +223,36 @@ plantRouter.post("/plants/save", authenticationUser, async (req, res) => {
         message: "Plant not found"
       })
     }
-    // Lägg till i användarens sparade växter
+
+    // Add to user's saved plants
     const user = req.user
+    const alreadySaved = user.savedPlants.some(
+      (p) => p.plant.toString() === plantId
+    )
+
+    if (alreadySaved) {
+      return res.status(400).json({
+        success: false,
+        message: "Plant already saved"
+      })
+    }
+
     const savedPlant = {
       plant: plant._id,
       savedAt: new Date(),
       notes: notes || ""
     }
+
     user.savedPlants.push(savedPlant)
     await user.save()
+
     res.status(201).json({
       success: true,
       message: "Plant saved successfully",
       savedPlant
     })
   } catch (error) {
+    console.error("❌ Error saving plant:", error)
     res.status(500).json({
       success: false,
       message: "Failed to save plant",
@@ -244,7 +261,7 @@ plantRouter.post("/plants/save", authenticationUser, async (req, res) => {
   }
 })
 
-// NY ENDPOINT: Spara API-växt till databas
+// NEW ENDPOINT: Save API plant to database
 plantRouter.post("/plants/save-from-api", authenticationUser, async (req, res) => {
   try {
     const { apiPlant } = req.body
@@ -256,21 +273,24 @@ plantRouter.post("/plants/save-from-api", authenticationUser, async (req, res) =
       })
     }
 
-    const savedPlant = await saveAPIPlantToDatabase(apiPlant)
+    // Find or create plant in Plant collection
+    let savedPlant = await Plant.findOne({ perenualId: apiPlant.perenualId })
+    if (!savedPlant) {
+      // Remove temporary fields before saving
+      const { _id, isFromAPI, source, ...plantDataToSave } = apiPlant
+      plantDataToSave.source = "api" // Set proper source
 
-    if (savedPlant) {
-      res.status(201).json({
-        success: true,
-        message: "Plant saved from API to database",
-        plant: savedPlant
-      })
-    } else {
-      res.status(400).json({
-        success: false,
-        message: "Failed to save plant from API"
-      })
+      savedPlant = new Plant(plantDataToSave)
+      await savedPlant.save()
     }
+
+    res.status(201).json({
+      success: true,
+      message: "Plant saved from API to database",
+      plant: savedPlant
+    })
   } catch (error) {
+    console.error("❌ Error saving API plant:", error)
     res.status(500).json({
       success: false,
       message: "Failed to save API plant",
@@ -279,7 +299,69 @@ plantRouter.post("/plants/save-from-api", authenticationUser, async (req, res) =
   }
 })
 
-// Debug endpoint - visa alla unika värden för filtrering
+// Save API plant to database AND add to favorites
+plantRouter.post("/plants/save-and-favorite", authenticationUser, async (req, res) => {
+  try {
+    const { apiPlant, notes } = req.body
+
+    if (!apiPlant || !apiPlant.perenualId) {
+      return res.status(400).json({
+        success: false,
+        message: "API plant data required"
+      })
+    }
+
+    // Find or create plant in database
+    let savedPlant = await Plant.findOne({ perenualId: apiPlant.perenualId })
+    if (!savedPlant) {
+      // Remove temporary fields before saving
+      const { _id, isFromAPI, source, ...plantDataToSave } = apiPlant
+      plantDataToSave.source = "api" // Set proper source
+
+      savedPlant = new Plant(plantDataToSave)
+      await savedPlant.save()
+    }
+
+    const user = req.user
+    // Fixed typo: savedPlant -> savedPlants
+    const alreadySaved = user.savedPlants.some(
+      (p) => p.plant.toString() === savedPlant._id.toString()
+    )
+
+    if (alreadySaved) {
+      return res.status(400).json({
+        success: false,
+        message: "Plant already saved"
+      })
+    }
+
+    const savedPlantEntry = {
+      plant: savedPlant._id,
+      savedAt: new Date(),
+      notes: notes || ""
+    }
+
+    user.savedPlants.push(savedPlantEntry)
+    await user.save()
+
+    res.status(201).json({
+      success: true,
+      message: "Plant saved to database and favorites",
+      plant: savedPlant,
+      savedPlant: savedPlantEntry
+    })
+
+  } catch (error) {
+    console.error("❌ Error in save-and-favorite:", error)
+    res.status(500).json({
+      success: false,
+      message: "Failed to save plant",
+      error: error.message
+    })
+  }
+})
+
+// Debug endpoint - show all unique values for filtering
 plantRouter.get("/plants-debug", async (req, res) => {
   try {
     const uniqueSunlight = await Plant.distinct("sunlight")
@@ -304,9 +386,30 @@ plantRouter.get("/plants-debug", async (req, res) => {
       }
     })
   } catch (error) {
+    console.error("❌ Debug endpoint error:", error)
     res.status(500).json({
       success: false,
       message: "Debug failed",
+      error: error.message
+    })
+  }
+})
+
+// GET user's saved plants
+plantRouter.get("/plants/saved", authenticationUser, async (req, res) => {
+  try {
+    const user = req.user
+    await user.populate("savedPlants.plant")
+
+    res.status(200).json({
+      success: true,
+      savedPlants: user.savedPlants
+    })
+  } catch (error) {
+    console.error("❌ Error getting saved plants:", error)
+    res.status(500).json({
+      success: false,
+      message: "Failed to get saved plants",
       error: error.message
     })
   }
@@ -329,6 +432,7 @@ plantRouter.get("/plants/:id", async (req, res) => {
       plant: plant
     })
   } catch (error) {
+    console.error("❌ Error getting plant by ID:", error)
     res.status(500).json({
       success: false,
       message: "Failed to get plant",
@@ -337,7 +441,7 @@ plantRouter.get("/plants/:id", async (req, res) => {
   }
 })
 
-// POST new plant (endast för inloggade användare)
+// POST new plant (only for logged in users)
 plantRouter.post("/plants", authenticationUser, async (req, res) => {
   try {
     const plantData = {
@@ -355,6 +459,7 @@ plantRouter.post("/plants", authenticationUser, async (req, res) => {
       plant: newPlant
     })
   } catch (error) {
+    console.error("❌ Error creating plant:", error)
     res.status(400).json({
       success: false,
       message: "Failed to add plant",
@@ -363,7 +468,7 @@ plantRouter.post("/plants", authenticationUser, async (req, res) => {
   }
 })
 
-// PUT update plant (endast för inloggade användare)
+// PUT update plant (only for logged in users)
 plantRouter.put("/plants/:id", authenticationUser, async (req, res) => {
   try {
     const updatedPlant = await Plant.findByIdAndUpdate(
@@ -385,6 +490,7 @@ plantRouter.put("/plants/:id", authenticationUser, async (req, res) => {
       plant: updatedPlant
     })
   } catch (error) {
+    console.error("❌ Error updating plant:", error)
     res.status(400).json({
       success: false,
       message: "Failed to update plant",
@@ -393,7 +499,7 @@ plantRouter.put("/plants/:id", authenticationUser, async (req, res) => {
   }
 })
 
-// DELETE plant (endast för inloggade användare)
+// DELETE plant (only for logged in users)
 plantRouter.delete("/plants/:id", authenticationUser, async (req, res) => {
   try {
     const deletedPlant = await Plant.findByIdAndDelete(req.params.id)
@@ -410,6 +516,7 @@ plantRouter.delete("/plants/:id", authenticationUser, async (req, res) => {
       message: "Plant deleted successfully"
     })
   } catch (error) {
+    console.error("❌ Error deleting plant:", error)
     res.status(500).json({
       success: false,
       message: "Failed to delete plant",
