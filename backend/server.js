@@ -16,7 +16,17 @@ const port = process.env.PORT || 8080;
 const app = express();
 
 
-app.use(cors())
+app.use(cors({
+  origin: [
+    'http://localhost:8080',
+    'https://lillebrorgrodafinalproject.netlify.app'
+  ],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ['Content-Type', 'Authorization']
+
+
+}))
 app.use(express.json())
 
 app.use(authRoutes)
@@ -25,7 +35,11 @@ app.use(plantRouter)
 //Routes
 
 app.get("/", (req, res) => {
-  res.send("Hello Technigo!")
+  res.json({
+    message: "Garden Backend API",
+    status: "running",
+    endpoints: ["/signup", "/login", "/plants", "/calendar"]
+  })
 })
 
 
