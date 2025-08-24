@@ -1,4 +1,4 @@
-import { useNavigate, Link } from "react-router"
+import { useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
 
 
@@ -15,19 +15,26 @@ const Footer = () => {
     }
   }
 
-  return (
+  const handleHomeNavigation = () => {
+    if (token) {
+      navigate("/account")
+    } else {
+      toast("Logga in för att se all funktionalitet", {
+        icon: "ℹ️"
+      })
+      navigate("/")
+    }
+  }
 
+  return (
     <div className="footer">
-      <Link to="/"><i className="fa-solid fa-house"></i></Link>
+      <i className="fa-solid fa-house" onClick={() => handleHomeNavigation()}></i>
       <i className="fa-solid fa-magnifying-glass" onClick={() => navigate("/search")}></i>
 
       <i
         className={`fa-solid fa-seedling ${!token ? "disabled" : ""}`} onClick={() => handleProtectedNavigation("/plants/saved", "se sparade växter")}></i>
       <i
         className={`fa-solid fa-calendar-days ${!token ? "disabled" : ""}`} onClick={() => handleProtectedNavigation("/calender", "se kalendern")}></i >
-
-
-
     </div>
 
   )
