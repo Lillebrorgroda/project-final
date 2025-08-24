@@ -1,4 +1,7 @@
-const API_URL = "http://localhost:8080";
+
+dotenv.config()
+
+const API_URL = import.meta.env.API_URL || "http://localhost:8080"
 
 const signup = (username, email, password) =>
   fetch(`${API_URL}/signup`, {

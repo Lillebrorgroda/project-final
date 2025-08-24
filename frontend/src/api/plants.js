@@ -1,4 +1,6 @@
-const BASE_URL = "http://localhost:8080";
+dotenv.config()
+
+const BASE_URL = import.meta.env.API_URL || "http://localhost:8080";
 
 const plantsAPI = {
   // Förbättrad sökning med filter och API-fallback
