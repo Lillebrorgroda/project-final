@@ -6,7 +6,7 @@ const BASE_URL = import.meta.env.DEV
   ? "/api"
   : "https://garden-backend-r6x2.onrender.com"
 
-const Calender = ({ accessToken }) => {
+const Calender = ({ token }) => {
   const daysOfWeek = ["Mån", "Tis", "Ons", "Tors", "Fre", "Lör", "Sön"]
   const monthsOfYear = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"]
   const currentDate = new Date();
@@ -34,7 +34,10 @@ const Calender = ({ accessToken }) => {
         setError(null)
         const res = await fetch(`${BASE_URL}/events`,
           {
-            headers: { Authorization: accessToken }
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`
+            },
           })
         if (!res.ok) throw new Error("Kunde inte hämta events")
         const data = await res.json()
@@ -49,19 +52,19 @@ const Calender = ({ accessToken }) => {
 
     fetchEvents()
 
-  }, [accessToken, addEvent])
+  }, [token, addEvent])
 
   const saveEvent = async (event, isEdit = false) => {
     try {
       const url = isEdit ? `${BASE_URL}/events/${event.id}` : `${BASE_URL}/events`
       const method = isEdit ? "PUT" : "POST"
-      console.log('Saving event:', { url, method, event, accessToken: !!accessToken })
+      console.log('Saving event:', { url, method, event, token: !!token })
 
       const res = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
-          Authorization: accessToken,
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify(event),
       });
@@ -84,15 +87,17 @@ const Calender = ({ accessToken }) => {
       console.error('Full error object:', err);
       console.error('Error name:', err.name);
       console.error('Error message:', err.message);
+
+      // Provide more specific error messages
+      if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
+        alert('Nätverksfel: Kunde inte ansluta till servern. Kontrollera din internetanslutning och att servern är tillgänglig.');
+      } else if (err.message.includes('CORS')) {
+        alert('CORS-fel: Servern tillåter inte förfrågningar från denna domän.');
+      } else {
+        alert(`Fel vid sparande: ${err.message}`);
+      }
     }
-    // Provide more specific error messages
-    if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
-      alert('Nätverksfel: Kunde inte ansluta till servern. Kontrollera din internetanslutning och att servern är tillgänglig.');
-    } else if (err.message.includes('CORS')) {
-      alert('CORS-fel: Servern tillåter inte förfrågningar från denna domän.');
-    } else {
-      alert(`Fel vid sparande: ${err.message}`);
-    }
+
   };
 
   // ta bort event
@@ -100,7 +105,10 @@ const Calender = ({ accessToken }) => {
     try {
       const res = await fetch(`${BASE_URL}/events/${id}`, {
         method: "DELETE",
-        headers: { Authorization: accessToken },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
       });
       if (!res.ok) throw new Error("Kunde inte ta bort event");
       await res.json();
@@ -119,7 +127,7 @@ const Calender = ({ accessToken }) => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: accessToken,
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify(updated),
       });
@@ -307,7 +315,7 @@ const Calender = ({ accessToken }) => {
                           />
                           {e.time} - {e.text}
                           <button onClick={() => handleEditEvent(e)}>✏️</button>
-                          <button onClick={() => deleteEvent(e.id)}>🗑</button>
+                          <button onClick={() => removeEvent(e.id)}>🗑</button>
 
                         </li>
                       ))}
