@@ -23,7 +23,7 @@ app.use(express.json())
 
 app.use(authRoutes)
 app.use(plantRouter)
-app.use("/api", eventRoutes)
+app.use(eventRoutes)
 
 //Routes
 
