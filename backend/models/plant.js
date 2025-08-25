@@ -10,7 +10,7 @@ const plantSchema = new mongoose.Schema({
     type: String,
   },
   commonName: {
-    type: String, // För engelska namn från API
+    type: String, // for the english name
   },
   description: {
     type: String,
@@ -18,8 +18,6 @@ const plantSchema = new mongoose.Schema({
   imageUrl: {
     type: String,
   },
-
-  // Odlingsförhållanden
   watering: {
     type: [String],
     default: [],
@@ -32,8 +30,6 @@ const plantSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
-
-  // Tidsperioder
   sowingPeriod: {
     type: [String], // Ex: ["March", "April"]
     default: [],
@@ -50,14 +46,12 @@ const plantSchema = new mongoose.Schema({
     type: [Number],
     default: [],
   },
-
-  // Relationer och egenskaper
-  companionPlants: [{ // Ändrat från companions för konsistens
+  companionPlants: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Plant",
   }],
   companionPlantNames: {
-    type: [String], // För textbaserade kompanjoner från CSV
+    type: [String],
     default: [],
   },
   edibleParts: {
@@ -69,7 +63,6 @@ const plantSchema = new mongoose.Schema({
     default: false,
   },
 
-  // Metadata
   redListStatus: {
     type: String, // Ex: "LC", "NT", "EN", "CR", etc.
   },
@@ -80,10 +73,8 @@ const plantSchema = new mongoose.Schema({
 
   // API-data
   perenualId: {
-    type: Number, // ID från Perenual API
+    type: Number, // ID from Perenual API
   },
-
-  // Spårning
   source: {
     type: String,
     enum: ["csv", "api", "csv_and_api", "manual"],
@@ -101,9 +92,9 @@ const plantSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-});
+})
 
-// Index för bättre sökprestanda
+// Index
 plantSchema.index({ scientificName: 1 });
 plantSchema.index({ swedishName: 1 });
 plantSchema.index({ commonName: 1 });
@@ -111,12 +102,12 @@ plantSchema.index({ sunlight: 1 });
 plantSchema.index({ watering: 1 });
 plantSchema.index({ sowingMonths: 1 });
 
-// Virtual för att få fullständigt namn
+
 plantSchema.virtual('fullName').get(function () {
   return `${this.swedishName} (${this.scientificName})`;
 });
 
-// Middleware för att uppdatera updatedAt
+// Middleware for updatedAt
 plantSchema.pre('findOneAndUpdate', function () {
   this.set({ updatedAt: new Date() });
 });

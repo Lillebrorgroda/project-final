@@ -5,6 +5,8 @@ import dotenv from "dotenv"
 import authRoutes from "./routes/auth.js"
 import plantRouter from "./routes/plants.js"
 import "./models/user.js"
+import eventRoutes from "./routes/events.js"
+
 
 dotenv.config()
 
@@ -32,6 +34,7 @@ app.use(express.json())
 
 app.use(authRoutes)
 app.use(plantRouter)
+app.use("/api", eventRoutes)
 
 //Routes
 

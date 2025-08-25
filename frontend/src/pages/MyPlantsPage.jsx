@@ -16,6 +16,13 @@ const MyPlantsPage = () => {
       <i className="bx bx-chevron-left" onClick={() => navigate("/")}></i>
       <img src="/Broccoli.jpg" alt="Broccoli" />
       <h2>Mina växter</h2>
+      <div> {/**Add your own plants */}
+        <i className="fa-solid fa-plus"></i>
+        <p>Lägg till egna plantor</p>
+        <input type="text" />
+
+      </div>
+
       <PlantList token={token} />
     </div>
   )

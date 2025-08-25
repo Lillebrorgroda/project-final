@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
     minlength: 3,
     maxlength: 50,
-    trim: true, // Tar bort mellanslag
+    trim: true,
   },
   password: {
     type: String,
@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    lowercase: true, // Konverterar till lowercase
+    lowercase: true,
     trim: true,
     match: [/.+\@.+\..+/, 'Please enter a valid email address'],
   },
@@ -50,10 +50,10 @@ const userSchema = new mongoose.Schema({
     type: Date,
   }
 }, {
-  timestamps: true // Lägger till createdAt och updatedAt automatiskt
+  timestamps: true // 
 })
 
-// Index för bättre prestanda
+// Index 
 //userSchema.index({ email: 1 });
 userSchema.index({ accessToken: 1 });
 
