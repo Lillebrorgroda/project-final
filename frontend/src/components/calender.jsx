@@ -9,7 +9,7 @@ const BASE_URL = import.meta.env.DEV
 const Calender = ({ token }) => {
   const daysOfWeek = ["Mån", "Tis", "Ons", "Tors", "Fre", "Lör", "Sön"]
   const monthsOfYear = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"]
-  const currentDate = new Date();
+  const currentDate = new Date()
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth())
   const [currentYear, setCurrentYear] = useState(currentDate.getFullYear())
   const [selectedDate, setSelectedDate] = useState(currentDate)
