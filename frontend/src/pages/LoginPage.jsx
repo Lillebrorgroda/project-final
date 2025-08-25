@@ -17,7 +17,7 @@ const LoginPage = ({ setToken, setUsername }) => {
       localStorage.setItem("username", name);
       navigate("/search");
     } else {
-      alert("Inloggning misslyckades");
+      alert("Inloggning misslyckades"); // Change to a toast
     }
   };
 

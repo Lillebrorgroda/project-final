@@ -2,11 +2,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authAPI from "../api/auth";
 
+//Add a loading state
+
 const SignupPage = ({ setToken, setUsername }) => {
   const [username, setUsernameLocal] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate();
 
   const handleSignup = async () => {
@@ -21,7 +24,7 @@ const SignupPage = ({ setToken, setUsername }) => {
     } else {
       setMessage("Registrering misslyckades: " + (res.message || "Okänt fel"));
     }
-  };
+  }
 
   return (
     <div className="signup">
@@ -49,7 +52,7 @@ const SignupPage = ({ setToken, setUsername }) => {
       <button onClick={handleSignup}>Registrera</button>
       <p>{message}</p>
     </div>
-  );
-};
+  )
+}
 
 export default SignupPage;
