@@ -34,7 +34,7 @@ const Footer = () => {
       <i
         className={`fa-solid fa-seedling ${!token ? "disabled" : ""}`} onClick={() => handleProtectedNavigation("/plants/saved", "se sparade växter")}></i>
       <i
-        className={`fa-solid fa-calendar-days ${!token ? "disabled" : ""}`} onClick={() => handleProtectedNavigation("/calender", "se kalendern")}></i >
+        className={`fa-solid fa-calendar-days ${!token ? "disabled" : ""}`} onClick={() => handleProtectedNavigation("/events", "se kalendern")}></i >
     </div>
 
   )
