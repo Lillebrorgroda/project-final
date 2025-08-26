@@ -46,9 +46,9 @@ const App = () => {
         <Route path="/signup" element={<SignUpPage setToken={setToken} setUsername={setUsername} />} />
         <Route path="/login" element={<LoginPage setToken={setToken} setUsername={setUsername} />} />
         <Route path="/search" element={<PlantPage token={token} />} />
-        <Route path="/events" element={<CalenderPage setToken={setToken} setUsername={setUsername} />} />
-        <Route path="/account" element={<AccountPage setToken={setToken} setUsername={setUsername} />} />
-        <Route path="/plants/saved" element={<MyPlantsPage setToken={setToken} setUsername={setUsername} />} />
+        <Route path="/events" element={<CalenderPage setToken={token} setUsername={setUsername} />} />
+        <Route path="/account" element={<AccountPage setToken={token} setUsername={setUsername} />} />
+        <Route path="/plants/saved" element={<MyPlantsPage setToken={token} setUsername={setUsername} />} />
         <Route path="*" element={<h2>404 - Sidan hittades inte</h2>} />
 
       </Routes>
