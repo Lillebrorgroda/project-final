@@ -67,14 +67,16 @@ const PlantPage = ({ token }) => {
       const res = await plantsAPI.searchPlants(searchParams, token);
 
       if (res.success) {
-        setPlants(res.plants || []);
+        setPlants(res.plants || [])
         setSearchInfo({
           total: res.count,
           dbCount: res.dbCount,
           apiCount: res.apiCount,
           searchedInAPI: res.searchedInAPI,
           searchTerm: res.searchTerm
-        });
+        })
+
+
       } else {
         setError("Sökning misslyckades");
       }
@@ -82,6 +84,7 @@ const PlantPage = ({ token }) => {
       setError("Kunde inte hämta växter: " + err.message);
     } finally {
       setLoading(false);
+      setSearchQuery("")
     }
   };
 
@@ -109,7 +112,7 @@ const PlantPage = ({ token }) => {
       setError("Kunde inte spara växten: " + err.message);
     }
   };
-
+  {/*
   const handleFilterChange = (filterName, value) => {
     setFilters(prev => ({
       ...prev,
@@ -127,7 +130,7 @@ const PlantPage = ({ token }) => {
       includeAPI: true
     });
     setSearchQuery("");
-  };
+  };*/}
 
   return (
     <div className="plant-page">
@@ -140,12 +143,12 @@ const PlantPage = ({ token }) => {
         <div className="search-bar">
           <input
             type="text"
-            placeholder="Sök på namn, vetenskapligt namn eller beskrivning..."
+            placeholder="Sök på namn eller vetenskapligt namn"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
-          <button onClick={handleSearch} disabled={loading}>
+          <button onClick={handleSearch} disabled={loading} >
             {loading ? "Söker..." : "Sök"}
           </button>
         </div>

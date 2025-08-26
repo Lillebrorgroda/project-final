@@ -3,9 +3,7 @@ import { useEffect, useState } from 'react'
 import useCalenderStore from '../store/useCalenderStore'
 import toast from 'react-hot-toast'
 
-const BASE_URL = import.meta.env.DEV
-  ? "/api"
-  : "https://garden-backend-r6x2.onrender.com"
+const BASE_URL = import.meta.env.VITE_API_URL
 
 const Calender = ({ token }) => {
   console.log('Calender received token:', token)
@@ -59,14 +57,15 @@ const Calender = ({ token }) => {
   }, [token, addEvent])
 
   const saveEvent = async (event, isEdit = false) => {
-    if (!token) { // ✅ Lägg till denna kontroll
-      console.error('No token available')
-      return
-    }
+
 
     try {
-      const url = isEdit ? `${BASE_URL}/events/${event.id}` : `${BASE_URL}/events`
+      const url = isEdit ? `${BASE_URL}/events/${id}` : `${BASE_URL}/events`
       const method = isEdit ? "PUT" : "POST"
+      console.log('🔑 Token being sent:', token)
+      console.log('📝 Token length:', token?.length)
+      console.log('🌐 Request URL:', url)
+      console.log('📋 Request method:', method)
       console.log('Saving event:', { url, method, event, token: !!token })
 
       const res = await fetch(url, {
@@ -75,6 +74,7 @@ const Calender = ({ token }) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
+
         body: JSON.stringify(event),
       });
 
@@ -397,6 +397,6 @@ const Calender = ({ token }) => {
     </div >
   )
 }
-}
+
 
 export default Calender
