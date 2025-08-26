@@ -6,7 +6,7 @@ import React from "react"
 const CalenderPage = () => {
   return (
     <div>
-      <Calender />
+      <Calender token={token} />
     </div>
   )
 }

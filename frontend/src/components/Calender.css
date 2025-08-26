@@ -8,6 +8,7 @@
   border: 1rem solid #0f6a3f;
   display: flex;
   column-gap: 5rem;
+  align-items: flex-start;
   position: relative;
   transform-style: preserve-3d;
 }
@@ -27,6 +28,7 @@
 
 .calender {
   width: 40%;
+  height: 100%;
 }
 
 .heading {
