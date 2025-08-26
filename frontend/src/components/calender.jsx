@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react'
 import useCalenderStore from '../store/useCalenderStore'
+import toast from 'react-hot-toast'
 
 const BASE_URL = import.meta.env.DEV
   ? "/api"
@@ -72,7 +73,12 @@ const Calender = ({ token }) => {
       console.log('Response status:', res.status);
       console.log('Response headers:', res.headers);
 
-      if (!res.ok) throw new Error("Kunde inte spara event");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}))
+        throw new Error(errorData.message || `HTTP ${res.status}`)
+      }
+
+
       const saved = await res.json();
       console.log("saved event", saved)
 
@@ -206,15 +212,17 @@ const Calender = ({ token }) => {
 
     console.log('Submitting event:', newEvent)
 
-    if (editingEvent) {
-      updateEvent(newEvent)
-    } else {
-      addEvent(newEvent)
-    }
+
 
     try {
 
       await saveEvent(newEvent, !!editingEvent)
+
+      {/*if (editingEvent) {
+        updateEvent(newEvent)
+      } else {
+        addEvent(newEvent)
+}*/}
 
       setEventTime({
         hours: "00",
@@ -224,142 +232,145 @@ const Calender = ({ token }) => {
       setShowEventPopup(false)
       setEditingEvent(null)
 
-    } catch {
-      console.error('Error submitting event:', error)
+    } catch (err) {
+      console.error('Error submitting event:', err)
+      toast.info("Fel vid sparande av händelse")
     }
+  }
 
-    const handleEditEvent = (event) => {
-      setSelectedDate(new Date(event.date))
-      setEventTime({
-        hours: event.time.split(":")[0],
-        minutes: event.time.split(":")[1]
-      })
-      setEventText(event.text)
-      setEditingEvent(event)
-      setShowEventPopup(true)
-    }
 
-    {/**
+  const handleEditEvent = (event) => {
+    setSelectedDate(new Date(event.date))
+    setEventTime({
+      hours: event.time.split(":")[0],
+      minutes: event.time.split(":")[1]
+    })
+    setEventText(event.text)
+    setEditingEvent(event)
+    setShowEventPopup(true)
+  }
+
+  {/**
   const handleDeleteEvent = (eventId) => {
     const updatedEvent = event.filter((event) => event.id !== eventId)
     setEvent(updatedEvent)
 
   } */}
 
-    const handleTimeChange = (e) => {
-      const { name, value } = e.target
-      setEventTime((prev) => ({ ...prev, [name]: value.padStart(2, "0") }))
+  const handleTimeChange = (e) => {
+    const { name, value } = e.target
+    setEventTime((prev) => ({ ...prev, [name]: value.padStart(2, "0") }))
 
-    }
+  }
 
-    return (
-      <div className="calender-app">
-        <div className="calender">
-          <h2 className="heading">Kalender</h2>
-          <div className="navigate-date">
-            <h3>{monthsOfYear[currentMonth]}</h3>
-            <h3>{currentYear}</h3>
-            <div className="buttons">
-              <i className="bx bx-chevron-left" onClick={prevMonth}></i>
-              <i className="bx bx-chevron-right" onClick={nextMonth}></i>
-            </div>
-            <button onClick={() => setView("month")}>Månad</button>
-            <button onClick={() => setView("week")}>Vecka</button>
+  return (
+    <div className="calender-app">
+      <div className="calender">
+        <h2 className="heading">Kalender</h2>
+        <div className="navigate-date">
+          <h3>{monthsOfYear[currentMonth]}</h3>
+          <h3>{currentYear}</h3>
+          <div className="buttons">
+            <i className="bx bx-chevron-left" onClick={prevMonth}></i>
+            <i className="bx bx-chevron-right" onClick={nextMonth}></i>
           </div>
-          {loading && <p>Laddar...</p>}
-          {error && <p style={{ color: "red" }}>{error}</p>}
+          <button onClick={() => setView("month")}>Månad</button>
+          <button onClick={() => setView("week")}>Vecka</button>
+        </div>
+        {loading && <p>Laddar...</p>}
+        {error && <p style={{ color: "red" }}>{error}</p>}
 
-          {view === "month" && (
-            <>
+        {view === "month" && (
+          <>
 
-              <div className="weekdays">
+            <div className="weekdays">
 
-                {daysOfWeek.map((day) => (
-                  <span className="weekday" key={day}>{day}</span>
-                ))}
-              </div>
-              <div className="days">
-                {[...Array(firstDayOfMonth).keys()].map((_, index) => <span key={`empty-${index}`} />)}
-                {[...Array(daysInMonth).keys()].map((day) => (<span key={day + 1} className={
-                  day + 1 === currentDate.getDate() &&
-                    currentMonth === currentDate.getMonth() &&
-                    currentYear === currentDate.getFullYear()
-                    ? "current-day"
-                    : ""
-                }
-                  onClick={() => handleDateClick(day + 1)}
-                >
-                  {day + 1}
-                </span>))}
-              </div>
-
-            </>
-          )}
-
-          {view === "week" && (
-            <div className="week-view">
-              {daysOfWeekDates.map((date, idx) => (
-                <div
-                  key={date.toISOString()}
-                  onClick={() => handleDateClick(date)}
-                >
-                  <h4>{daysOfWeek[idx]} {date.getDate()}/{date.getMonth() + 1}</h4>
-                  <ul>
-                    {events.filter((e) => isSameDay(new Date(e.date), date))
-                      .map((e) => (
-                        <li key={e.id}>
-                          <input
-                            type="checkbox"
-                            checked={e.done || false}
-                            onChange={() => toggleTodo(e)}
-                          />
-                          {e.time} - {e.text}
-                          <button onClick={() => handleEditEvent(e)}>✏️</button>
-                          <button onClick={() => removeEvent(e.id)}>🗑</button>
-
-                        </li>
-                      ))}
-                  </ul>
-                </div>
+              {daysOfWeek.map((day) => (
+                <span className="weekday" key={day}>{day}</span>
               ))}
             </div>
-          )}
-
-        </div>
-        <div className="events">
-          {showEventPopup && (
-            <div className="event-popup">
-              <div className="time-input">
-                <div className="event-popup-time">Tid</div>
-                <input type="number"
-                  name="hours"
-                  min={0}
-                  max={24}
-                  className="hours"
-                  value={eventTime.hours}
-                  onChange={handleTimeChange}
-                />
-                <input type="number"
-                  name="minutes"
-                  min={0}
-                  max={59}
-                  className="minutes"
-                  value={eventTime.minutes}
-                  onChange={handleTimeChange}
-                />
-              </div>
-              <textarea placeholder="Skriv uppgifter här (maximalt 60 tecken)" value={eventText} onChange={(e) => {
-                if (e.target.value.length <= 60) {
-                  setEventText(e.target.value);
-                } else {
-                  alert("Maximalt 60 tecken tillåtna.");
-                }
-              }} name="" id=""></textarea>
-              <button className="event-popup-btn" onClick={handleEventSubmit}>{editingEvent ? "Uppdatera" : "Lägg till"}</button>
-              <button className="event-popup-close" onClick={() => setShowEventPopup(false)}><i className="bx bx-x"></i></button>
+            <div className="days">
+              {[...Array(firstDayOfMonth).keys()].map((_, index) => <span key={`empty-${index}`} />)}
+              {[...Array(daysInMonth).keys()].map((day) => (<span key={day + 1} className={
+                day + 1 === currentDate.getDate() &&
+                  currentMonth === currentDate.getMonth() &&
+                  currentYear === currentDate.getFullYear()
+                  ? "current-day"
+                  : ""
+              }
+                onClick={() => handleDateClick(day + 1)}
+              >
+                {day + 1}
+              </span>))}
             </div>
-          )}
-          {/*
+
+          </>
+        )}
+
+        {view === "week" && (
+          <div className="week-view">
+            {daysOfWeekDates.map((date, idx) => (
+              <div
+                key={date.toISOString()}
+                onClick={() => handleDateClick(date)}
+              >
+                <h4>{daysOfWeek[idx]} {date.getDate()}/{date.getMonth() + 1}</h4>
+                <ul>
+                  {events.filter((e) => isSameDay(new Date(e.date), date))
+                    .map((e) => (
+                      <li key={e.id}>
+                        <input
+                          type="checkbox"
+                          checked={e.done || false}
+                          onChange={() => toggleTodo(e)}
+                        />
+                        {e.time} - {e.text}
+                        <button onClick={() => handleEditEvent(e)}>✏️</button>
+                        <button onClick={() => removeEvent(e.id)}>🗑</button>
+
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
+
+      </div>
+      <div className="events">
+        {showEventPopup && (
+          <div className="event-popup">
+            <div className="time-input">
+              <div className="event-popup-time">Tid</div>
+              <input type="number"
+                name="hours"
+                min={0}
+                max={24}
+                className="hours"
+                value={eventTime.hours}
+                onChange={handleTimeChange}
+              />
+              <input type="number"
+                name="minutes"
+                min={0}
+                max={59}
+                className="minutes"
+                value={eventTime.minutes}
+                onChange={handleTimeChange}
+              />
+            </div>
+            <textarea placeholder="Skriv uppgifter här (maximalt 60 tecken)" value={eventText} onChange={(e) => {
+              if (e.target.value.length <= 60) {
+                setEventText(e.target.value);
+              } else {
+                alert("Maximalt 60 tecken tillåtna.");
+              }
+            }} name="" id=""></textarea>
+            <button className="event-popup-btn" onClick={handleEventSubmit}>{editingEvent ? "Uppdatera" : "Lägg till"}</button>
+            <button className="event-popup-close" onClick={() => setShowEventPopup(false)}><i className="bx bx-x"></i></button>
+          </div>
+        )}
+        {/*
         {event.map((event, index) => (
           <div className="event" key={index}>
             <div className="event-date-wrapper">
@@ -374,10 +385,10 @@ const Calender = ({ token }) => {
           </div>
         ))} */}
 
-        </div >
       </div >
-    )
-  }
+    </div >
+  )
+}
 }
 
 export default Calender

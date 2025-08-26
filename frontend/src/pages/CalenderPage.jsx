@@ -3,7 +3,7 @@ import "../components/Calender.css"
 
 import React from "react"
 
-const CalenderPage = () => {
+const CalenderPage = ({ token }) => {
   return (
     <div>
       <Calender token={token} />
