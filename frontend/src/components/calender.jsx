@@ -8,6 +8,8 @@ const BASE_URL = import.meta.env.DEV
   : "https://garden-backend-r6x2.onrender.com"
 
 const Calender = ({ token }) => {
+  console.log('Calender received token:', token)
+
   const daysOfWeek = ["Mån", "Tis", "Ons", "Tors", "Fre", "Lör", "Sön"]
   const monthsOfYear = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"]
   const currentDate = new Date()
@@ -30,6 +32,7 @@ const Calender = ({ token }) => {
 
   useEffect(() => {
     const fetchEvents = async () => {
+      if (!token) return
       try {
         setLoading(true)
         setError(null)
@@ -56,6 +59,11 @@ const Calender = ({ token }) => {
   }, [token, addEvent])
 
   const saveEvent = async (event, isEdit = false) => {
+    if (!token) { // ✅ Lägg till denna kontroll
+      console.error('No token available')
+      return
+    }
+
     try {
       const url = isEdit ? `${BASE_URL}/events/${event.id}` : `${BASE_URL}/events`
       const method = isEdit ? "PUT" : "POST"
