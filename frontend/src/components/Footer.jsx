@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
-
+import { FaHouse, FaMagnifyingGlass, FaSeedling, FaCalendarDays } from "react-icons/fa6"
+import { FooterStyled, FooterIcon } from "../styles/stylecomponents/StyledComponentsLibrary"
 
 const Footer = () => {
   const navigate = useNavigate()
   const token = localStorage.getItem("token")
 
   const handleProtectedNavigation = (path, actionName) => {
-
     if (token) {
       navigate(path)
     } else {
@@ -27,18 +27,28 @@ const Footer = () => {
   }
 
   return (
-    <div className="footer">
-      <i className="fa-solid fa-house" onClick={() => handleHomeNavigation()}></i>
-      <i className="fa-solid fa-magnifying-glass" onClick={() => navigate("/search")}></i>
+    <FooterStyled>
+      <FooterIcon onClick={() => handleHomeNavigation()} >
+        <FaHouse />
+      </FooterIcon>
 
-      <i
-        className={`fa-solid fa-seedling ${!token ? "disabled" : ""}`} onClick={() => handleProtectedNavigation("/plants/saved", "se sparade växter")}></i>
-      <i
-        className={`fa-solid fa-calendar-days ${!token ? "disabled" : ""}`} onClick={() => handleProtectedNavigation("/events", "se kalendern")}></i >
-    </div>
-
+      < FooterIcon onClick={() => navigate("/search")} >
+        <FaMagnifyingGlass />
+      </FooterIcon>
+      <FooterIcon
+        className={!token ? "disabled" : ""}
+        onClick={() => handleProtectedNavigation("/plants/saved", "se sparade växter")}
+      >
+        <FaSeedling />
+      </FooterIcon>
+      {/*  <FooterIcon
+        className={!token ? "disabled" : ""}
+        onClick={() => handleProtectedNavigation("/events", "se kalendern")}
+      >
+        <FaCalendarDays />
+      </FooterIcon>*/}
+    </FooterStyled>
   )
-
 }
 
 export default Footer

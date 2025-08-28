@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authAPI from "../api/auth";
+import { Container, PageContainer, PrimaryButton, StyledInput } from "../styles/stylecomponents/StyledComponentsLibrary";
 
 const LoginPage = ({ setToken, setUsername }) => {
   const [email, setEmail] = useState("");
@@ -22,23 +23,25 @@ const LoginPage = ({ setToken, setUsername }) => {
   };
 
   return (
-    <div className="login">
-      <img src="/Broccoli.jpg" alt="Broccoli" />
-      <h2>Logga in</h2>
-      <input
-        type="email"
-        placeholder="E-post"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Lösenord"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleLogin}>Logga in</button>
-    </div>
+    <Container>
+      <PageContainer>
+        <img className="plant-image" src="/Broccoli.jpg" alt="Broccoli" />
+        <h2>Logga in</h2>
+        <StyledInput
+          type="email"
+          placeholder="E-post"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <StyledInput
+          type="password"
+          placeholder="Lösenord"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <PrimaryButton onClick={handleLogin}>Logga in</PrimaryButton>
+      </PageContainer>
+    </Container>
   );
 };
 

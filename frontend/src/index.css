@@ -13,7 +13,7 @@
  }
 
  .footer {
-   position: fixed;
+   /*position: fixed;*/
    bottom: 0;
    width: 100%;
    background-color: #f0f8f5;
@@ -229,6 +229,13 @@
    align-items: center;
    margin-bottom: 20px;
    gap: 10px;
+ }
+
+ .plants-list {
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+   gap: 1rem;
+   padding: 1rem;
  }
 
  .plant-action-buttons {

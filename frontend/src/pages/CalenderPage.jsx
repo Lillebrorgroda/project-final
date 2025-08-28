@@ -1,5 +1,5 @@
 import Calender from "../components/calender.jsx"
-import "../components/Calender.css"
+
 
 import React from "react"
 

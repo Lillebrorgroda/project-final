@@ -1,15 +1,20 @@
 import { useNavigate } from "react-router-dom";
+import { Container, PageContainer } from "../styles/stylecomponents/StyledComponentsLibrary";
+import Calender from "../components/calender";
 
 const AccountPage = () => {
   const navigate = useNavigate()
   return (
-    <div className="account-page">
-      <i className="bx bx-chevron-left" onClick={() => navigate("/")}></i>
-      <img src="/Broccoli.jpg" alt="Broccoli" />
-      <h2>Mitt konto</h2>
-      <p>Här kan du hantera dina växter och inställningar.</p>
-      {/* Additional account management features can be added here */}
-    </div>
+    <Container>
+      <PageContainer>
+        <i className="bx bx-chevron-left" onClick={() => navigate("/")}></i>
+        <img className="plant-image my-plants-centered" src="/Broccoli.jpg" alt="Broccoli" />
+        <h2>Mitt konto</h2>
+        <p>Håll koll på dina att-göra-uppgifter här.</p>
+        {/* Additional account management features can be added here */}
+        <Calender />
+      </PageContainer>
+    </Container >
   );
 }
 

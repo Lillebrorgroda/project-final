@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authAPI from "../api/auth";
+import { Container, PageContainer, PrimaryButton, StyledInput } from "../styles/stylecomponents/StyledComponentsLibrary";
+
 
 //Add a loading state
 
@@ -27,31 +29,34 @@ const SignupPage = ({ setToken, setUsername }) => {
   }
 
   return (
-    <div className="signup">
-      <i className="bx bx-chevron-left" onClick={() => navigate("/")} style={{ cursor: "pointer" }}></i>
-      <img src="/Broccoli.jpg" alt="Broccoli" />
-      <h2>Registrera dig</h2>
-      <input
-        type="text"
-        placeholder="Användarnamn"
-        value={username}
-        onChange={(e) => setUsernameLocal(e.target.value)}
-      />
-      <input
-        type="email"
-        placeholder="E-post"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Lösenord"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleSignup}>Registrera</button>
-      <p>{message}</p>
-    </div>
+
+    <Container>
+      <PageContainer>
+        <i className="bx bx-chevron-left" onClick={() => navigate("/")} style={{ cursor: "pointer" }}></i>
+        <img className="plant-image" src="/Broccoli.jpg" alt="Broccoli" />
+        <h2>Registrera dig</h2>
+        <StyledInput
+          type="text"
+          placeholder="Användarnamn"
+          value={username}
+          onChange={(e) => setUsernameLocal(e.target.value)}
+        />
+        <StyledInput
+          type="email"
+          placeholder="E-post"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <StyledInput
+          type="password"
+          placeholder="Lösenord"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <PrimaryButton onClick={handleSignup}>Registrera</PrimaryButton>
+        <p>{message}</p>
+      </PageContainer>
+    </Container>
   )
 }
 
