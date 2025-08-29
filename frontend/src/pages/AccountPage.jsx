@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Container, PageContainer } from "../styles/stylecomponents/StyledComponentsLibrary";
 import Calender from "../components/calender";
 
-const AccountPage = () => {
+const AccountPage = ({ token }) => {
   const navigate = useNavigate()
   return (
     <Container>
@@ -12,7 +12,7 @@ const AccountPage = () => {
         <h2>Mitt konto</h2>
         <p>Håll koll på dina att-göra-uppgifter här.</p>
         {/* Additional account management features can be added here */}
-        <Calender />
+        <Calender token={token} />
       </PageContainer>
     </Container >
   );
