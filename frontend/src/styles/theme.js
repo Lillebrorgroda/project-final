@@ -4,7 +4,7 @@ const theme = {
     primaryHover: "#45a049",
     secondary: "#6f7b76",
     background: "#Fff",
-    backgroundAlt: "#f0f8f5", // Samma som din footer/container bakgrund
+    backgroundAlt: "#fff",
     text: "#333",
     textLight: "#0a1511",
     border: "#ddd",

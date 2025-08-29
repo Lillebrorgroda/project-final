@@ -1,5 +1,5 @@
 import fs from "fs"
-// CHANGE: Replace csv-parser with Papa Parse for better control
+// Replace csv-parser with Papa Parse for better control
 import Papa from "papaparse"
 import mongoose from "mongoose"
 import Plant from "../models/plant.js"
@@ -221,9 +221,9 @@ const seedCombinedData = async () => {
     const csvPlants = await readCSVAndCombine()
     console.log("📊 Bearbetar CSV-växter med specifik API-data...")
 
-    // CHANGE: Add rate limiting and better loop control
+    // Add rate limiting and better loop control
     let apiCallsCount = 0
-    const MAX_API_CALLS = 90 // Stay under 100/hour limit
+    const MAX_API_CALLS = 90 // Stay under 100 limit
 
     for (let i = 0; i < csvPlants.length && apiCallsCount < MAX_API_CALLS; i++) {
       const plant = csvPlants[i]
@@ -231,13 +231,13 @@ const seedCombinedData = async () => {
 
       let externalData = {}
 
-      // CHANGE: Only make API call if we haven't hit limit
+      //  Only make API call if we haven't hit limit
       if (apiCallsCount < MAX_API_CALLS && plant.scientificName) {
         try {
           externalData = await fetchFromExternalAPI(plant.scientificName)
           apiCallsCount++
 
-          // CHANGE: Add delay between API calls
+          // Add delay between API calls
           if (apiCallsCount < MAX_API_CALLS) {
             await new Promise(resolve => setTimeout(resolve, 200))
           }
@@ -250,7 +250,7 @@ const seedCombinedData = async () => {
         }
       }
 
-      // CHANGE: Better data mapping with CSV fallbacks
+      // Better data mapping with CSV fallbacks
       allPlantsToSave.push({
         scientificName: plant.scientificName,
         swedishName: plant.swedishName,
@@ -274,7 +274,7 @@ const seedCombinedData = async () => {
       })
     }
 
-    // CHANGE: Process remaining CSV plants without API data if we hit rate limit
+    // Process remaining CSV plants without API data if we hit rate limit
     if (allPlantsToSave.length < csvPlants.length) {
       console.log(`📝 Lägger till resterande ${csvPlants.length - allPlantsToSave.length} växter utan API-data...`)
 
@@ -307,7 +307,7 @@ const seedCombinedData = async () => {
     // 2. Sedan: HÃ¤mta mÃ¥nga fler vÃ¤xter direkt frÃ¥n API (only if we haven't hit rate limit)
     if (apiCallsCount < MAX_API_CALLS) {
       console.log("🌍 Hämtar ytterligare växter från API...")
-      const apiPlants = await fetchAllPlantsFromAPI(5) // CHANGE: Reduce to 5 pages to stay under rate limit
+      const apiPlants = await fetchAllPlantsFromAPI(5) // Reduce to 5 pages to stay under rate limit
 
       console.log(`📦 Hämtade ${apiPlants.length} växter från API`)
 
