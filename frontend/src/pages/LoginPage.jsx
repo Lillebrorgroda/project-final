@@ -29,12 +29,15 @@ const LoginPage = ({ setToken, setUsername }) => {
         <h2>Logga in</h2>
         <StyledInput
           type="email"
+          aria-label="email"
           placeholder="E-post"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+
         />
         <StyledInput
           type="password"
+          aria-label="lösenord"
           placeholder="Lösenord"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

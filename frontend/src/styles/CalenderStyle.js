@@ -100,14 +100,14 @@ export const TaskText = styled.span`
 `
 
 export const TaskTime = styled.span`
-  font-size: 1.2rem;
-  color: ${({ theme }) => theme.colors.secondary};
+  font-size: 1.3rem;
+  color: ${({ theme }) => theme.colors.text};
   font-family: ${({ theme }) => theme.fonts.body};
 `
 
 export const TaskDate = styled.span`
-  font-size: 1.1rem;
-  color: ${({ theme }) => theme.colors.secondary};
+  font-size: 1.3rem;
+  color: ${({ theme }) => theme.colors.text};
   font-weight: 500;
   font-family: ${({ theme }) => theme.fonts.body};
 `
@@ -121,10 +121,10 @@ export const TaskActionButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.4rem;
+  font-size: 2rem;
   padding: ${({ theme }) => theme.spacing(0.5)};
   border-radius: 4px;
-  color: ${({ theme }) => theme.colors.secondary};
+  color: ${({ theme }) => theme.colors.text};
   transition: color 0.2s ease;
 
   &:hover {
@@ -165,6 +165,10 @@ export const CalendarHeader = styled.div`
     color: ${({ theme }) => theme.colors.text};
     margin: 0;
   }
+
+  span{
+    font-size: 15px;
+  }
 `
 
 export const CalendarNav = styled.div`
@@ -195,7 +199,9 @@ export const Weekdays = styled.div`
   margin-top: ${({ theme }) => theme.spacing(2)};
   text-align: center;
   font-weight: bold;
-  color: ${({ theme }) => theme.colors.secondary};
+   font-size: 15px;
+  color: ${({ theme }) => theme.colors.text};
+
 `
 
 export const DaysGrid = styled.div`
@@ -203,6 +209,7 @@ export const DaysGrid = styled.div`
   grid-template-columns: repeat(7, 1fr);
   gap: ${({ theme }) => theme.spacing(0.5)};
   margin-top: ${({ theme }) => theme.spacing(1)};
+  font-size: 15px;
 `
 
 export const DayCell = styled.div`
@@ -214,7 +221,7 @@ export const DayCell = styled.div`
   cursor: pointer;
   background: ${({ $isToday, theme }) =>
     $isToday ? theme.colors.primary : theme.colors.backgroundAlt};
-  color: ${({ $isToday, theme }) => ($isToday ? "white" : "inherit")};
+  color: ${({ $isToday, theme }) => ($isToday ? "#0C0D0D" : "inherit")};
 
   &:hover {
     background: ${({ theme }) => theme.colors.primaryHover};

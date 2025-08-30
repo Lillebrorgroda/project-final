@@ -5,7 +5,7 @@ const theme = {
     secondary: "#6f7b76",
     background: "#Fff",
     backgroundAlt: "#fff",
-    text: "#333",
+    text: "#0C0D0D",
     textLight: "#0a1511",
     border: "#ddd",
     shadow: "rgba(0, 0, 0, 0.1)",
@@ -28,11 +28,11 @@ const theme = {
   // Gemensamma stilar för återanvändning
   components: {
     button: {
-      padding: "10px 20px",
+      padding: "15px 20px",
       border: "none",
       borderRadius: "5px",
       transition: "background-color 0.3s ease",
-      margin: "5px"
+      margin: "10px"
     },
     input: {
       padding: "10px",

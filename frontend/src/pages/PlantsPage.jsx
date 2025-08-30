@@ -151,6 +151,7 @@ const PlantPage = ({ token }) => {
           <SearchBar>
             <StyledInput
               type="text"
+              aria-label="Sökfält"
               placeholder="Sök på namn eller vetenskapligt namn"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

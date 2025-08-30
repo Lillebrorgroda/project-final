@@ -37,7 +37,7 @@ export const PrimaryButton = styled.button`
   border: ${({ theme }) => theme.components.button.border};
   border-radius: ${({ theme }) => theme.components.button.borderRadius};
   background-color: ${({ theme }) => theme.colors.primary};
-  color: white;
+  color:${({ theme }) => theme.colors.text} ;
   cursor: pointer;
   transition: ${({ theme }) => theme.components.button.transition};
   font-family: ${({ theme }) => theme.fonts.body};

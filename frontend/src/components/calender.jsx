@@ -326,6 +326,7 @@ const Calender = ({ token }) => {
                 <TaskItem key={task.id || `task-${index}`} $completed={task.done}>
                   <TaskCheckbox
                     type="checkbox"
+                    aria-label="Klar med uppgift"
                     checked={task.done || false}
                     onChange={() => toggleTodo(task)}
                   />
@@ -364,11 +365,26 @@ const Calender = ({ token }) => {
           <CloseButton onClick={() => setShowEventPopup(false)}>✖</CloseButton>
           <h3>{editingEvent ? "Redigera händelse" : "Ny händelse"}</h3>
           <TimeInputs>
-            <input type="number" name="hours" min={0} max={24} value={eventTime.hours} onChange={handleTimeChange} />
+            <input
+              type="number"
+              aria-label="Timme"
+              name="hours"
+              min={0}
+              max={24}
+              value={eventTime.hours}
+              onChange={handleTimeChange} />
             <span>:</span>
-            <input type="number" name="minutes" min={0} max={59} value={eventTime.minutes} onChange={handleTimeChange} />
+            <input
+              type="number"
+              aria-label="minuter"
+              name="minutes"
+              min={0}
+              max={59}
+              value={eventTime.minutes}
+              onChange={handleTimeChange} />
           </TimeInputs>
           <textarea
+            aria-label="Skriv uppgifter här (max 60 tecken)"
             placeholder="Skriv uppgifter här (max 60 tecken)"
             value={eventText}
             onChange={(e) => e.target.value.length <= 60 ? setEventText(e.target.value) : null}

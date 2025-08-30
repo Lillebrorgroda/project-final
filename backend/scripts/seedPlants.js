@@ -18,23 +18,23 @@ console.log("📁 Working directory:", process.cwd())
 console.log("🔑 API Key finns:", !!API_KEY)
 console.log("🗄️ MongoDB URL:", mongoUrl)
 
-// CHANGE: Complete rewrite of CSV reading function to handle your actual CSV structure
+// Complete rewrite of CSV reading function to handle your actual CSV structure
 const readCSVAndCombine = async () => {
   try {
     console.log("📖 Läser CSV-fil...")
 
-    // CHANGE: Read file with proper encoding and use Papa Parse
+    // Read file with proper encoding and use Papa Parse
     const csvContent = fs.readFileSync("data/plants.csv", 'utf-8')
 
     const csvData = Papa.parse(csvContent, {
       header: true,
       skipEmptyLines: true,
-      delimiter: ';', // CHANGE: Your CSV uses semicolons
+      delimiter: ';', // Your CSV uses semicolons
       dynamicTyping: false,
       transformHeader: (header) => header.trim() // CHANGE: Clean headers
     })
 
-    // CHANGE: Add debugging info
+    // Add debugging info
     console.log('📋 CSV Headers:', Object.keys(csvData.data[0] || {}))
     console.log('📋 First row sample:', csvData.data[0])
 
@@ -42,20 +42,18 @@ const readCSVAndCombine = async () => {
       console.log('⚠️ CSV parsing errors:', csvData.errors)
     }
 
-    // CHANGE: Map your actual CSV columns to the expected format
+    // Map actual CSV columns to the expected format
     const results = csvData.data
       .filter(row => {
         const swedishName = row['Svenskt namn']?.trim()
         return swedishName && swedishName.length > 0 && swedishName !== 'undefined'
       })
       .map(row => ({
-        // CHANGE: Map actual CSV columns
         scientificName: row['Vetenskapligt namn']?.trim() || '',
         swedishName: row['Svenskt namn']?.trim() || '',
-        description: '', // Not in your CSV
-        companionPlants: [], // Not in your CSV
-        edibleParts: [], // Not in your CSV
-        // CHANGE: Use actual CSV data as fallback
+        description: '',
+        companionPlants: [],
+        edibleParts: [],
         csvType: row['Typ']?.trim() || '',
         csvBloomingTime: row['Blomningstid']?.trim() || '',
         csvSunlight: row['Sol/Skugga']?.trim() || '',
@@ -101,7 +99,7 @@ const getFirstImageFromCommons = async (categoryUrl) => {
   }
 }
 
-// HÃ¤mta mÃ¥nga vÃ¤xter frÃ¥n API (alla sidor)
+// Get alot of plants from API
 const fetchAllPlantsFromAPI = async (maxPages = 30) => {
   try {
     console.log(`🌿 Hämtar växter från API (max ${maxPages} sidor)`)
@@ -122,10 +120,9 @@ const fetchAllPlantsFromAPI = async (maxPages = 30) => {
 
       console.log(`✅ Hämtade ${plants.length} växter från sida ${page}`)
 
-      // Paus mellan anrop fÃ¶r att inte Ã¶verbelasta API:et
       await new Promise(resolve => setTimeout(resolve, 1000))
 
-      // Sluta om det inte finns fler sidor
+      // Stop if there is no more pages
       if (!response.data.to || response.data.to >= response.data.total) {
         console.log("📋 Inga fler sidor att hämta")
         break
@@ -139,7 +136,7 @@ const fetchAllPlantsFromAPI = async (maxPages = 30) => {
   }
 }
 
-// Konvertera API-vÃ¤xt till vÃ¥rt format
+// Convert into to right format
 const convertAPIPlantToOurFormat = (apiPlant) => {
   return {
     scientificName: Array.isArray(apiPlant.scientific_name)
@@ -161,7 +158,7 @@ const convertAPIPlantToOurFormat = (apiPlant) => {
   }
 }
 
-// CHANGE: Add rate limiting and better error handling
+
 const fetchFromExternalAPI = async (scientificName) => {
   try {
     // CHANGE: Skip if no scientific name
@@ -207,17 +204,17 @@ const seedCombinedData = async () => {
   try {
     console.log("🌱 Startar import av växtdata...")
 
-    // Anslut till MongoDB
+    // Connect to MongoDB
     await mongoose.connect(mongoUrl)
     console.log("✅ Ansluten till MongoDB")
 
-    // Rensa befintlig data
+    // Delete data before seeding
     console.log("🗑️ Rensar befintlig data...")
     await Plant.deleteMany({})
 
     let allPlantsToSave = []
 
-    // 1. FÃ¶rst: LÃ¤s CSV och berika med specifik API-data
+    // 1. Read CSV and add API-data 
     const csvPlants = await readCSVAndCombine()
     console.log("📊 Bearbetar CSV-växter med specifik API-data...")
 
@@ -274,7 +271,7 @@ const seedCombinedData = async () => {
       })
     }
 
-    // Process remaining CSV plants without API data if we hit rate limit
+    // Process remaining CSV plants without API data if hit rate limit
     if (allPlantsToSave.length < csvPlants.length) {
       console.log(`📝 Lägger till resterande ${csvPlants.length - allPlantsToSave.length} växter utan API-data...`)
 
@@ -304,17 +301,17 @@ const seedCombinedData = async () => {
       }
     }
 
-    // 2. Sedan: HÃ¤mta mÃ¥nga fler vÃ¤xter direkt frÃ¥n API (only if we haven't hit rate limit)
+    // 2. Get more plants from API(only if we haven't hit rate limit)
     if (apiCallsCount < MAX_API_CALLS) {
       console.log("🌍 Hämtar ytterligare växter från API...")
       const apiPlants = await fetchAllPlantsFromAPI(5) // Reduce to 5 pages to stay under rate limit
 
       console.log(`📦 Hämtade ${apiPlants.length} växter från API`)
 
-      // Konvertera API-vÃ¤xter till vÃ¥rt format
+
       const convertedAPIPlants = apiPlants.map(convertAPIPlantToOurFormat)
 
-      // Filtrera bort dubbletter (om samma vÃ¤xt finns i bÃ¥de CSV och API)
+      // Take away dubblets 
       const existingPerenualIds = new Set(
         allPlantsToSave
           .filter(plant => plant.perenualId)
@@ -327,13 +324,13 @@ const seedCombinedData = async () => {
 
       console.log(`🔄 ${uniqueAPIPlants.length} unika API-växter efter dubblettfiltrering`)
 
-      // LÃ¤gg till API-vÃ¤xter
+
       allPlantsToSave = [...allPlantsToSave, ...uniqueAPIPlants]
     } else {
       console.log("⏰ Hoppar över ytterligare API-anrop pga rate limit")
     }
 
-    // CHANGE: Better error handling for database saves
+
     console.log(`💾 Sparar ${allPlantsToSave.length} växter till databasen...`)
 
     // Save in smaller batches to handle validation errors better
@@ -367,7 +364,7 @@ const seedCombinedData = async () => {
     console.log(`   - ${csvPlants.length} från CSV`)
     console.log(`   - API anrop gjorda: ${apiCallsCount}`)
 
-    // Visa exempel pÃ¥ fÃ¶rsta vÃ¤xten
+    // Show one example
     if (savedPlants.length > 0) {
       console.log("\n📋 Exempel på importerad växt:")
       console.log(JSON.stringify(savedPlants[0], null, 2))
@@ -383,5 +380,5 @@ const seedCombinedData = async () => {
   }
 }
 
-// KÃ¶r endast om filen kÃ¶rs direkt (inte importerad)
+
 seedCombinedData()
