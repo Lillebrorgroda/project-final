@@ -1,5 +1,4 @@
 import fs from "fs"
-// Replace csv-parser with Papa Parse for better control
 import Papa from "papaparse"
 import mongoose from "mongoose"
 import Plant from "../models/plant.js"
@@ -10,36 +9,25 @@ import * as cheerio from "cheerio"
 
 dotenv.config()
 
+// 🔑 Environment variables
 const API_KEY = process.env.PERENUAL_API_KEY
 const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/final-project"
 
-console.log("🚀 Startar seed script...")
-console.log("📁 Working directory:", process.cwd())
-console.log("🔑 API Key finns:", !!API_KEY)
-console.log("🗄️ MongoDB URL:", mongoUrl)
-
-// Complete rewrite of CSV reading function to handle your actual CSV structure
+// ⚙️ CSV Reader
 const readCSVAndCombine = async () => {
   try {
-    console.log("📖 Läser CSV-fil...")
-
-    // Read file with proper encoding and use Papa Parse
     const csvContent = fs.readFileSync("data/plants.csv", 'utf-8')
 
     const csvData = Papa.parse(csvContent, {
       header: true,
       skipEmptyLines: true,
-      delimiter: ';', // Your CSV uses semicolons
+      delimiter: ';', // CSV uses semicolons
       dynamicTyping: false,
-      transformHeader: (header) => header.trim() // CHANGE: Clean headers
+      transformHeader: (header) => header.trim()
     })
 
-    // Add debugging info
-    console.log('📋 CSV Headers:', Object.keys(csvData.data[0] || {}))
-    console.log('📋 First row sample:', csvData.data[0])
-
     if (csvData.errors.length > 0) {
-      console.log('⚠️ CSV parsing errors:', csvData.errors)
+      console.error('⚠️ CSV parsing errors:', csvData.errors)
     }
 
     // Map actual CSV columns to the expected format
@@ -64,7 +52,6 @@ const readCSVAndCombine = async () => {
         csvRedListStatus: row['Rödlistestatus']?.trim() || row['RÃ¶dlistestatus']?.trim() || ''
       }))
 
-    console.log(`✅ Läste ${results.length} växter från CSV`)
     return results
 
   } catch (error) {
@@ -73,7 +60,7 @@ const readCSVAndCombine = async () => {
   }
 }
 
-// Handle picture URLs
+// 🖼️ Wikimedia image scraper
 const getFirstImageFromCommons = async (categoryUrl) => {
   try {
     const response = await fetch(categoryUrl)
@@ -81,10 +68,8 @@ const getFirstImageFromCommons = async (categoryUrl) => {
     const $ = cheerio.load(html)
 
     const firstFilePage = $(".galleryfilename a").attr("href")
-    if (!firstFilePage) {
-      console.log(`⚠️ Ingen bild hittades för kategori: ${categoryUrl}`)
-      return ""
-    }
+    if (!firstFilePage) return ""
+
     const filePageUrl = `https://commons.wikimedia.org${firstFilePage}`
 
     const fileRes = await fetch(filePageUrl);
@@ -94,19 +79,17 @@ const getFirstImageFromCommons = async (categoryUrl) => {
     const imgUrl = $$(".fullMedia a").attr("href");
     return imgUrl ? `https:${imgUrl}` : "";
   } catch (error) {
-    console.error(`Kunde inte hämta bild från ${categoryUrl}`, error);
+    console.error(`❌ Failed to fetch image for${categoryUrl}`, error);
     return "";
   }
 }
 
-// Get alot of plants from API
+// 🌱 Fetch multiple plants from API
 const fetchAllPlantsFromAPI = async (maxPages = 30) => {
   try {
-    console.log(`🌿 Hämtar växter från API (max ${maxPages} sidor)`)
     let allAPIPlants = []
 
     for (let page = 1; page <= maxPages; page++) {
-      console.log(`📄 Hämtar sida ${page}/${maxPages}`)
 
       const response = await axios.get(`https://perenual.com/api/v2/species-list`, {
         params: {
@@ -118,25 +101,22 @@ const fetchAllPlantsFromAPI = async (maxPages = 30) => {
       const plants = response.data.data || []
       allAPIPlants = [...allAPIPlants, ...plants]
 
-      console.log(`✅ Hämtade ${plants.length} växter från sida ${page}`)
-
       await new Promise(resolve => setTimeout(resolve, 1000))
 
       // Stop if there is no more pages
       if (!response.data.to || response.data.to >= response.data.total) {
-        console.log("📋 Inga fler sidor att hämta")
         break
       }
     }
 
     return allAPIPlants
   } catch (err) {
-    console.error("❌ Fel vid hämtning av växter från API:", err.message)
+    console.error("❌ API fetch error:", err.message)
     return []
   }
 }
 
-// Convert into to right format
+// 🔄 Convert API format to DB format
 const convertAPIPlantToOurFormat = (apiPlant) => {
   return {
     scientificName: Array.isArray(apiPlant.scientific_name)
@@ -158,23 +138,19 @@ const convertAPIPlantToOurFormat = (apiPlant) => {
   }
 }
 
-
+// 🔎 Fetch single plant from API
 const fetchFromExternalAPI = async (scientificName) => {
   try {
-    // CHANGE: Skip if no scientific name
     if (!scientificName || scientificName === 'undefined') {
-      console.log(`⚠️ Hoppar över tomt vetenskapligt namn`)
       return {}
     }
-
-    console.log(`🔍 Hämtar API-data för: ${scientificName}`)
 
     const response = await axios.get(`https://perenual.com/api/v2/species-list`, {
       params: {
         key: API_KEY,
         q: scientificName,
       },
-      timeout: 10000 // CHANGE: Add timeout
+      timeout: 10000
     })
 
     const plantData = response.data.data?.[0]
@@ -187,36 +163,27 @@ const fetchFromExternalAPI = async (scientificName) => {
         commonName: plantData.common_name
       }
     }
-    console.log(`⚠️ Ingen data hittades för: ${scientificName}`)
     return {}
   } catch (err) {
-    // CHANGE: Better error handling for rate limits
     if (err.response?.status === 429) {
-      console.error(`❌ Rate limit nådd för ${scientificName}:`, err.response.headers)
+      console.error(`⏰ Rate limit reached for ${scientificName}:`, err.response.headers)
       throw err // Re-throw to stop processing
     }
-    console.error(`❌ Fel vid API-anrop för ${scientificName}:`, err.response?.data || err.message)
+    console.error(`❌ API error for ${scientificName}:`, err.response?.data || err.message)
     return {}
   }
 }
 
+// 🌍 Seeder
 const seedCombinedData = async () => {
   try {
-    console.log("🌱 Startar import av växtdata...")
-
-    // Connect to MongoDB
     await mongoose.connect(mongoUrl)
-    console.log("✅ Ansluten till MongoDB")
-
-    // Delete data before seeding
-    console.log("🗑️ Rensar befintlig data...")
     await Plant.deleteMany({})
 
     let allPlantsToSave = []
 
     // 1. Read CSV and add API-data 
     const csvPlants = await readCSVAndCombine()
-    console.log("📊 Bearbetar CSV-växter med specifik API-data...")
 
     // Add rate limiting and better loop control
     let apiCallsCount = 0
@@ -224,7 +191,6 @@ const seedCombinedData = async () => {
 
     for (let i = 0; i < csvPlants.length && apiCallsCount < MAX_API_CALLS; i++) {
       const plant = csvPlants[i]
-      console.log(`📄 Bearbetar CSV-växt ${i + 1}/${csvPlants.length}: ${plant.swedishName}`)
 
       let externalData = {}
 
@@ -247,7 +213,6 @@ const seedCombinedData = async () => {
         }
       }
 
-      // Better data mapping with CSV fallbacks
       allPlantsToSave.push({
         scientificName: plant.scientificName,
         swedishName: plant.swedishName,
@@ -260,7 +225,6 @@ const seedCombinedData = async () => {
         sunlight: externalData.sunlight?.length > 0 ? externalData.sunlight : [plant.csvSunlight].filter(Boolean),
         watering: externalData.watering !== "unknown" ? [externalData.watering] : [plant.csvWatering].filter(Boolean),
         perenualId: externalData.perenualId || null,
-        // CHANGE: Add CSV-specific fields
         type: plant.csvType,
         bloomingTime: plant.csvBloomingTime,
         sowingTime: plant.csvSowingTime,
@@ -273,7 +237,6 @@ const seedCombinedData = async () => {
 
     // Process remaining CSV plants without API data if hit rate limit
     if (allPlantsToSave.length < csvPlants.length) {
-      console.log(`📝 Lägger till resterande ${csvPlants.length - allPlantsToSave.length} växter utan API-data...`)
 
       for (let i = allPlantsToSave.length; i < csvPlants.length; i++) {
         const plant = csvPlants[i]
@@ -303,14 +266,8 @@ const seedCombinedData = async () => {
 
     // 2. Get more plants from API(only if we haven't hit rate limit)
     if (apiCallsCount < MAX_API_CALLS) {
-      console.log("🌍 Hämtar ytterligare växter från API...")
       const apiPlants = await fetchAllPlantsFromAPI(5) // Reduce to 5 pages to stay under rate limit
-
-      console.log(`📦 Hämtade ${apiPlants.length} växter från API`)
-
-
       const convertedAPIPlants = apiPlants.map(convertAPIPlantToOurFormat)
-
       // Take away dubblets 
       const existingPerenualIds = new Set(
         allPlantsToSave
@@ -322,16 +279,8 @@ const seedCombinedData = async () => {
         plant.perenualId && !existingPerenualIds.has(plant.perenualId)
       )
 
-      console.log(`🔄 ${uniqueAPIPlants.length} unika API-växter efter dubblettfiltrering`)
-
-
       allPlantsToSave = [...allPlantsToSave, ...uniqueAPIPlants]
-    } else {
-      console.log("⏰ Hoppar över ytterligare API-anrop pga rate limit")
     }
-
-
-    console.log(`💾 Sparar ${allPlantsToSave.length} växter till databasen...`)
 
     // Save in smaller batches to handle validation errors better
     const savedPlants = []
@@ -343,38 +292,31 @@ const seedCombinedData = async () => {
       try {
         const saved = await Plant.insertMany(batch, { ordered: false })
         savedPlants.push(...saved)
-        console.log(`✅ Sparade batch ${Math.floor(i / batchSize) + 1}: ${saved.length} växter`)
-      } catch (error) {
-        console.log(`⚠️ Fel vid batch ${Math.floor(i / batchSize) + 1}:`, error.message)
 
+      } catch (error) {
         // Try saving individually to see which plants cause issues
         for (const plantData of batch) {
           try {
             const saved = await Plant.create(plantData)
             savedPlants.push(saved)
           } catch (individualError) {
-            console.log(`❌ Misslyckades spara växt ${plantData.swedishName}:`, individualError.message)
+            console.error(`❌ Failed to save ${plantData.swedishName}:`, individualError.message)
           }
         }
       }
     }
 
-    console.log(`🎉 Import klar!`)
-    console.log(`📊 Totalt sparade ${savedPlants.length} växter:`)
-    console.log(`   - ${csvPlants.length} från CSV`)
-    console.log(`   - API anrop gjorda: ${apiCallsCount}`)
-
     // Show one example
     if (savedPlants.length > 0) {
-      console.log("\n📋 Exempel på importerad växt:")
+      console.log("\n📋 Example imported plant:")
       console.log(JSON.stringify(savedPlants[0], null, 2))
     }
 
   } catch (err) {
-    console.error("💥 Fel vid seedning:", err.message)
+    console.error("💥 Seeder error:", err.message)
     console.error(err)
   } finally {
-    console.log("🔌 Stänger databasanslutning...")
+    console.log("🔌 Closing DB connection...")
     mongoose.disconnect()
     process.exit(0)
   }

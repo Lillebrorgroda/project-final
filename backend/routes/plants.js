@@ -54,42 +54,6 @@ const searchPlantInAPI = async (searchTerm) => {
   }
 }
 
-// Function to save API result to database (optional)
-const saveAPIPlantToDatabase = async (apiPlant) => {
-  try {
-    // Check if plant already exists
-    const existingPlant = await Plant.findOne({ perenualId: apiPlant.perenualId })
-
-    if (!existingPlant) {
-      const plantData = {
-        scientificName: apiPlant.scientificName,
-        swedishName: apiPlant.commonName || "Unknown Swedish name",
-        commonName: apiPlant.commonName,
-        description: apiPlant.description,
-        imageUrl: apiPlant.imageUrl,
-        sunlight: apiPlant.sunlight,
-        watering: apiPlant.watering,
-        perenualId: apiPlant.perenualId,
-        cycle: apiPlant.cycle,
-        isEdible: false,
-        companionPlantNames: [],
-        edibleParts: [],
-        source: "api",
-        createdAt: new Date()
-      }
-
-      const newPlant = new Plant(plantData)
-      await newPlant.save()
-      console.log(`💾 Saved new plant from API: ${plantData.commonName}`)
-      return newPlant
-    }
-
-    return existingPlant
-  } catch (error) {
-    console.error(`❌ Could not save API plant:`, error.message)
-    return null
-  }
-}
 
 // GET all plants - with search, filtering AND API fallback
 plantRouter.get("/plants", async (req, res) => {
@@ -261,43 +225,7 @@ plantRouter.post("/plants/saved", authenticationUser, async (req, res) => {
   }
 })
 
-// NEW ENDPOINT: Save API plant to database
-plantRouter.post("/plants/save-from-api", authenticationUser, async (req, res) => {
-  try {
-    const { apiPlant } = req.body
 
-    if (!apiPlant || !apiPlant.perenualId) {
-      return res.status(400).json({
-        success: false,
-        message: "API plant data required"
-      })
-    }
-
-    // Find or create plant in Plant collection
-    let savedPlant = await Plant.findOne({ perenualId: apiPlant.perenualId })
-    if (!savedPlant) {
-      // Remove temporary fields before saving
-      const { _id, isFromAPI, source, ...plantDataToSave } = apiPlant
-      plantDataToSave.source = "api" // Set proper source
-
-      savedPlant = new Plant(plantDataToSave)
-      await savedPlant.save()
-    }
-
-    res.status(201).json({
-      success: true,
-      message: "Plant saved from API to database",
-      plant: savedPlant
-    })
-  } catch (error) {
-    console.error("❌ Error saving API plant:", error)
-    res.status(500).json({
-      success: false,
-      message: "Failed to save API plant",
-      error: error.message
-    })
-  }
-})
 
 // Save API plant to database AND add to favorites
 plantRouter.post("/plants/save-and-favorite", authenticationUser, async (req, res) => {
@@ -361,39 +289,7 @@ plantRouter.post("/plants/save-and-favorite", authenticationUser, async (req, re
   }
 })
 
-// Debug endpoint - show all unique values for filtering
-plantRouter.get("/plants-debug", async (req, res) => {
-  try {
-    const uniqueSunlight = await Plant.distinct("sunlight")
-    const uniqueWatering = await Plant.distinct("watering")
-    const uniqueCompanions = await Plant.distinct("companionPlantNames")
-    const samplePlants = await Plant.find({}).limit(5).lean()
 
-    res.json({
-      success: true,
-      debug: {
-        totalCount: await Plant.countDocuments({}),
-        uniqueSunlight,
-        uniqueWatering,
-        uniqueCompanions,
-        samplePlants: samplePlants.map(p => ({
-          scientificName: p.scientificName,
-          swedishName: p.swedishName,
-          sunlight: p.sunlight,
-          watering: p.watering,
-          companionPlantNames: p.companionPlantNames
-        }))
-      }
-    })
-  } catch (error) {
-    console.error("❌ Debug endpoint error:", error)
-    res.status(500).json({
-      success: false,
-      message: "Debug failed",
-      error: error.message
-    })
-  }
-})
 
 // GET user's saved plants
 plantRouter.get("/plants/saved", authenticationUser, async (req, res) => {

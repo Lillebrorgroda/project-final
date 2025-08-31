@@ -31,20 +31,9 @@ app.get("/", (req, res) => {
   res.json({
     message: "Garden Backend API",
     status: "running",
-    endpoints: ["/signup", "/login", "/plants", "/calendar"]
+    endpoints: ["/signup", "/login", "/plants", "/account"]
   })
 })
-
-
-
-app.get("/plants", (req, res) => {
-  res.send("Gets plants")
-})
-
-app.get("/calendar", (req, res) => {
-  const month = req.query
-  res.send(`calender for month ${month}`)
-}) //Kolla endpoint
 
 // Start the server
 app.listen(port, () => {

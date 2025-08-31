@@ -1,4 +1,3 @@
-// CalenderStyle.js - Uppdaterad version
 import styled from "styled-components"
 import { PrimaryButton } from "../styles/stylecomponents/StyledComponentsLibrary"
 
