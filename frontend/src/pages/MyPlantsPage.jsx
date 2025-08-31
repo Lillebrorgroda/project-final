@@ -1,6 +1,5 @@
 
 import { useNavigate } from "react-router-dom";
-
 import PlantList from "../components/PlantList"
 import { Container, PageContainer } from "../styles/stylecomponents/StyledComponentsLibrary";
 

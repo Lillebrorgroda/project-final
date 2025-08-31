@@ -2,10 +2,7 @@ import { useEffect, useState } from "react"
 import plantsAPI from "../api/plants"
 import {
   PlantListContainer,
-  EmptyMessage,
-  LoadingMessage,
   ErrorMessage,
-  ThemedPlantsGrid,
   ThemedPlantCard,
   PlantImage,
   PlantContent,
@@ -14,9 +11,10 @@ import {
   ScientificName,
   PlantFacts,
   PlantNotes,
-  RemoveButton,
   GridLayout,
-  StyledP
+  StyledP,
+  RemoveButton
+
 } from "../styles/stylecomponents/StyledComponentsLibrary"
 
 import { FaTrash } from "react-icons/fa6"
@@ -36,7 +34,7 @@ const PlantList = ({ token }) => {
       }
 
       try {
-        const data = await plantsAPI.getSavedPlants(token)
+        const data = await plantsAPI.getMyGarden(token)
         setSavedPlants(data.savedPlants || [])
         setError("")
       } catch (err) {
@@ -52,13 +50,15 @@ const PlantList = ({ token }) => {
   }, [token])
 
   const handleRemove = async (savedPlantId) => {
-    if (!window.confirm("Är du säker på att du vill ta bort denna växt?")) return
+    if (!window.confirm(`Är du säker på att du vill ta bort ${plantName} från din trädgård?`)) return
 
     try {
-      await plantsAPI.deleteSavedPlant(savedPlantId, token)
+      await plantsAPI.removePlantFromGarden(savedPlantId, token)
       setSavedPlants(prev =>
         prev.filter(entry => entry._id !== savedPlantId)
       )
+
+      //Add Success state here
     } catch (err) {
       setError("Kunde inte ta bort växten: " + err.message)
     }
@@ -67,7 +67,7 @@ const PlantList = ({ token }) => {
   if (loading) {
     return (
       <PlantListContainer>
-        <StyledP>Laddar sparade växter...</StyledP>
+        <StyledP>Laddar din trädgård.. 🌱</StyledP>
       </PlantListContainer>
     )
   }
@@ -83,7 +83,10 @@ const PlantList = ({ token }) => {
   return (
     <PlantListContainer>
       {savedPlants.length === 0 ? (
-        <StyledP>Inga sparade växter än!</StyledP>
+        <div style={{ textAlign: 'center', padding: '40px' }}>
+          <StyledP>Din trädgård är tom ännu! 🌱</StyledP>
+          <StyledP>Gå till sökfunktionen för att lägga till växter.</StyledP>
+        </div>
       ) : (
         <GridLayout>
           {savedPlants.map((entry) => (
@@ -92,32 +95,80 @@ const PlantList = ({ token }) => {
                 src={entry.plant.imageUrl || "/Frog.jpg"}
                 alt={entry.plant.swedishName || entry.plant.commonName}
                 className="plant-image"
+                onError={(e) => {
+                  e.target.src = "/Frog.jpg"
+                }}
               />
               <PlantContent>
                 <PlantHeader>
                   <PlantName>
-                    {entry.plant.swedishName || entry.plant.commonName}
+                    {entry.plant?.swedishName || entry.plant?.commonName || "Okänd växt"}
                   </PlantName>
-                  <ScientificName>{entry.plant.scientificName}</ScientificName>
+                  {entry.plant?.scientificName && (
+                    <ScientificName>{entry.plant.scientificName}</ScientificName>
+                  )}
                 </PlantHeader>
 
                 <PlantFacts>
-                  <p><strong>Beskrivning:</strong> {entry.plant.description}</p>
-                  <p><strong>Vattning:</strong> {entry.plant.watering}</p>
-                  <p><strong>Ljus:</strong> {entry.plant.sunlight}</p>
+                  {/* ✅ FIX: Säker rendering av array-data */}
+                  {entry.plant?.description && (
+                    <p><strong>Beskrivning:</strong> {entry.plant.description}</p>
+                  )}
+
+                  {entry.plant?.watering && entry.plant.watering.length > 0 && (
+                    <p><strong>Vattning:</strong> {
+                      Array.isArray(entry.plant.watering)
+                        ? entry.plant.watering.join(', ')
+                        : entry.plant.watering
+                    }</p>
+                  )}
+
+                  {entry.plant?.sunlight && entry.plant.sunlight.length > 0 && (
+                    <p><strong>Ljus:</strong> {
+                      Array.isArray(entry.plant.sunlight)
+                        ? entry.plant.sunlight.join(', ')
+                        : entry.plant.sunlight
+                    }</p>
+                  )}
+
+                  {/* ✅ TILLÄGG: Visa när växten sparades */}
+                  <p><strong>Sparad:</strong> {new Date(entry.savedAt).toLocaleDateString('sv-SE')}</p>
+
+                  {/* ✅ TILLÄGG: Visa källa */}
+                  {entry.plant?.source && (
+                    <p><strong>Källa:</strong> {
+                      entry.plant.source === 'api' ? 'Extern databas' : 'Lokal databas'
+                    }</p>
+                  )}
                 </PlantFacts>
 
-                {entry.notes && (
+                {entry.notes && entry.notes.trim() && (
                   <PlantNotes>
+                    <strong>Mina anteckningar:</strong>
                     <p>{entry.notes}</p>
                   </PlantNotes>
                 )}
 
-                <FaTrash
-                  onClick={() => handleRemove(entry._id)}
+                <RemoveButton
+                  onClick={() => handleRemove(entry._id, entry.plant?.swedishName || entry.plant?.commonName)}
                   disabled={loading}
-
-                />
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#dc3545',
+                    cursor: 'pointer',
+                    fontSize: '1.2rem',
+                    padding: '8px',
+                    borderRadius: '4px',
+                    transition: 'background-color 0.2s',
+                    marginTop: '10px'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f8d7da'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  title="Ta bort från trädgård"
+                >
+                  <FaTrash />
+                </RemoveButton>
               </PlantContent>
             </ThemedPlantCard>
           ))}

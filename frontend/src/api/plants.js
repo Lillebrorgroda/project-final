@@ -45,60 +45,9 @@ const plantsAPI = {
     return await res.json();
   },
 
-  // Spara ny växt till databas
-  savePlant: async (plant, token) => {
-    const res = await fetch(`${BASE_URL}/plants/saved`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(plant)
-    });
-    if (!res.ok) throw new Error("Kunde inte spara växt");
-    return await res.json();
-  },
-
-  // NY: Spara API-växt till databas
-  saveAPIPlantToDatabase: async (apiPlant, token) => {
-    const res = await fetch(`${BASE_URL}/plants/save-from-api`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ apiPlant })
-    });
-    if (!res.ok) throw new Error("Kunde inte spara API-växt till databas");
-    return await res.json();
-  },
 
 
-
-  savePlantToAccount: async (data, token, notes = "") => {
-    const res = await fetch(`${BASE_URL}/plants/saved`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ plantId: data, notes })
-    });
-    if (!res.ok) throw new Error("Kunde inte spara växt");
-    return await res.json();
-  },
-
-  getSavedPlants: async (token) => {
-    const res = await fetch(`${BASE_URL}/plants/saved`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-    })
-    if (!res.ok) throw new Error("Kunde inte hämta sparade växter");
-    return await res.json()
-  },
-
-  saveAPIPlantAndFavorite: async (apiPlant, notes, token) => {
+  saveAPIPlantToGarden: async (apiPlant, notes, token) => {
     const res = await fetch(`${BASE_URL}/plants/save-and-favorite`, {
       method: "POST",
       headers: {
@@ -109,6 +58,30 @@ const plantsAPI = {
     });
     if (!res.ok) throw new Error("Kunde inte spara API-växt");
     return await res.json();
+  },
+
+  saveExistingPlantAsFavorite: async (plantId, notes = "", token) => {
+    const res = await fetch(`${BASE_URL}/plants/saved`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ plantId, notes })
+    });
+    if (!res.ok) throw new Error("Kunde inte spara växt som favorit");
+    return await res.json();
+  },
+
+
+  getMyGarden: async (token) => {
+    const res = await fetch(`${BASE_URL}/plants/saved`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+    })
+    if (!res.ok) throw new Error("Kunde inte hämta sparade växter");
+    return await res.json()
   },
 
 
@@ -127,7 +100,7 @@ const plantsAPI = {
   },
 
   // Ta bort växt
-  deletePlant: async (savedPlantId, token) => {
+  removePlantFromGarden: async (savedPlantId, token) => {
     const res = await fetch(`${BASE_URL}/plants/${savedPlantId}`, {
       method: "DELETE",
       headers: {
@@ -138,31 +111,6 @@ const plantsAPI = {
     return await res.json();
   },
 
-  // Debug endpoint
-  getDebugInfo: async () => {
-    const res = await fetch(`${BASE_URL}/plants-debug`);
-    if (!res.ok) throw new Error("Kunde inte hämta debug-info");
-    return await res.json();
-  },
-
-  // Hjälpfunktioner för filter-alternativ
-  getFilterOptions: async () => {
-    try {
-      const debugInfo = await plantsAPI.getDebugInfo();
-      return {
-        sunlightOptions: debugInfo.debug.uniqueSunlight || [],
-        wateringOptions: debugInfo.debug.uniqueWatering || [],
-        companionOptions: debugInfo.debug.uniqueCompanions || []
-      };
-    } catch (error) {
-      console.error("Kunde inte hämta filter-alternativ:", error);
-      return {
-        sunlightOptions: [],
-        wateringOptions: [],
-        companionOptions: []
-      };
-    }
-  }
 };
 
 export default plantsAPI;

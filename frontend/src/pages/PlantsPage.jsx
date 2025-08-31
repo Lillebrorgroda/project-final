@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { FaChevronLeft } from "react-icons/fa6"
 import plantsAPI from "../api/plants"
 import {
   Container,
@@ -12,16 +11,13 @@ import {
   PlantName,
   ScientificName,
   ApiBadge,
-  PlantDescription,
   PlantDetails,
   DetailTag,
-  CompanionInfo,
   SearchBar,
   StyledInput,
   PrimaryButton,
   SearchSection,
   SearchInfo,
-  LoadingMessage,
   ErrorMessage,
   GridLayout,
   ThemedPlantCard,
@@ -117,16 +113,21 @@ const PlantPage = ({ token }) => {
     }
 
     try {
-      if (plant.isFromAPI) {
-        await plantsAPI.saveAPIPlantAndFavorite(plant, token, notes)
-      } else {
-        await plantsAPI.savePlantToAccount(plant._id, token, notes)
-      }
+      setLoading(true)
 
-      setMessage(`${plant.commonName || plant.swedishName} har sparats!`)
+      if (plant.isFromAPI) {
+        await plantsAPI.saveAPIPlantToGarden(plant, token, notes)
+        setMessage(`🌱 ${plant.swedishName || plant.commonName} har lagts till i din trädgård!`);
+      } else {
+        await plantsAPI.saveExistingPlantAsFavorite(plant._id, token, notes)
+        setMessage(`❤️ ${plant.swedishName || plant.commonName} har sparats som favorit!`);
+      }
       setTimeout(() => setMessage(""), 3000)
     } catch (err) {
       setError("Kunde inte spara växten: " + err.message)
+      setTimeout(() => setError(""), 5000);
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -266,10 +267,18 @@ const PlantPage = ({ token }) => {
 
                   {token && (
                     <PrimaryButton
-                      className={plant.isFromAPI ? 'save-api' : 'save-regular'}
+                      className={plant.isFromAPI ? 'save-to-garden' : 'save-as-favorite'}
                       onClick={() => handleSavePlant(plant)}
+                      disabled={plant.isSaved}
+                      style={{
+                        backgroundColor: plant.isSaved ? '#28a745' :
+                          plant.isFromAPI ? '#007bff' : '#6f42c1',
+                        cursor: plant.isSaved ? 'default' : 'pointer'
+                      }}
+
                     >
-                      {plant.isFromAPI ? 'Spara till databas' : 'Spara växt'}
+                      {plant.isSaved ? '✅ Sparad!' :
+                        plant.isFromAPI ? '🌱 Lägg till i min trädgård' : '❤️ Spara som favorit'}
                     </PrimaryButton>
                   )}
                 </ThemedPlantCard>
