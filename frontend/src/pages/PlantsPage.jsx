@@ -6,10 +6,8 @@ import {
   Container,
   PageContainer,
   PlantListContainer,
-  ThemedPlantsGrid,
   PlantSearchCard,
   PlantImage,
-  PlantContent,
   PlantSearchHeader,
   PlantName,
   ScientificName,
@@ -21,15 +19,13 @@ import {
   SearchBar,
   StyledInput,
   PrimaryButton,
-  SaveButton,
   SearchSection,
   SearchInfo,
   LoadingMessage,
   ErrorMessage,
-  NoResultsMessage,
-  BackIcon,
   GridLayout,
   ThemedPlantCard,
+  StyledP,
 
 } from "../styles/stylecomponents/StyledComponentsLibrary"
 
@@ -172,7 +168,7 @@ const PlantPage = ({ token }) => {
       </PageContainer>
 
       {/* Messages */}
-      {loading && <LoadingMessage>Söker...</LoadingMessage>}
+      {loading && <StyledP>Söker...</StyledP>}
       {error && <ErrorMessage>{error}</ErrorMessage>}
       {
         message && (
@@ -238,10 +234,10 @@ const PlantPage = ({ token }) => {
                   </PlantSearchHeader>
 
                   {plant.description && (
-                    <PlantDescription>
+                    <StyledP>
                       {plant.description.substring(0, 150)}
                       {plant.description.length > 150 ? '...' : ''}
-                    </PlantDescription>
+                    </StyledP>
                   )}
 
                   <PlantDetails>
@@ -263,9 +259,9 @@ const PlantPage = ({ token }) => {
                   </PlantDetails>
 
                   {plant.companionPlantNames && plant.companionPlantNames.length > 0 && (
-                    <CompanionInfo>
+                    <StyledP>
                       <strong>Kompanjoner:</strong> {plant.companionPlantNames.join(', ')}
-                    </CompanionInfo>
+                    </StyledP>
                   )}
 
                   {token && (
@@ -282,12 +278,12 @@ const PlantPage = ({ token }) => {
           </GridLayout>
         ) : (
           !loading && searchInfo && (
-            <NoResultsMessage>
+            <StyledP>
               {searchInfo.searchedInAPI
                 ? "Inga växter hittades varken i din databas eller extern databas."
                 : "Inga växter hittades i databasen. Prova att aktivera extern sökning."
               }
-            </NoResultsMessage>
+            </StyledP>
           )
         )}
       </PlantListContainer>

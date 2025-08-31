@@ -15,7 +15,8 @@ import {
   PlantFacts,
   PlantNotes,
   RemoveButton,
-  GridLayout
+  GridLayout,
+  StyledP
 } from "../styles/stylecomponents/StyledComponentsLibrary"
 
 import { FaTrash } from "react-icons/fa6"
@@ -66,7 +67,7 @@ const PlantList = ({ token }) => {
   if (loading) {
     return (
       <PlantListContainer>
-        <LoadingMessage>Laddar sparade växter...</LoadingMessage>
+        <StyledP>Laddar sparade växter...</StyledP>
       </PlantListContainer>
     )
   }
@@ -82,7 +83,7 @@ const PlantList = ({ token }) => {
   return (
     <PlantListContainer>
       {savedPlants.length === 0 ? (
-        <EmptyMessage>Inga sparade växter än!</EmptyMessage>
+        <StyledP>Inga sparade växter än!</StyledP>
       ) : (
         <GridLayout>
           {savedPlants.map((entry) => (
