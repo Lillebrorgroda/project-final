@@ -1,10 +1,11 @@
 import { Link } from "react-router";
-import { Container, PageContainer, ButtonGroup, PrimaryButton } from "../styles/stylecomponents/StyledComponentsLibrary"
+import { FullscreenWrapper, PageWrapper } from "../styles/components/Layout.styles";
+import { PrimaryButton, ButtonGroup } from "../styles/components/Button.styles";
 
 const LandingPage = () => {
   return (
-    <Container>
-      <PageContainer>
+    <FullscreenWrapper>
+      <PageWrapper>
         <img className="plant-image" src="/Broccoli.jpg" alt="Broccoli" />
         <h1>Välkommen till Trädgården</h1>
         <p>Din digitala följeslagare för växtvård och planering.</p>
@@ -14,8 +15,8 @@ const LandingPage = () => {
           <Link to="/signup"><PrimaryButton>Registrera dig</PrimaryButton></Link>
           <Link to="/search"><PrimaryButton>Sök växt</PrimaryButton></Link>
         </ButtonGroup>
-      </PageContainer>
-    </Container>
+      </PageWrapper>
+    </FullscreenWrapper>
   )
 }
 

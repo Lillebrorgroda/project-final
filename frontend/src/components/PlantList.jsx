@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react"
 import plantsAPI from "../api/plants"
 import {
-  PlantListContainer,
   ErrorMessage,
-  ThemedPlantCard,
   PlantImage,
   PlantContent,
   PlantHeader,
@@ -11,11 +9,12 @@ import {
   ScientificName,
   PlantFacts,
   PlantNotes,
-  GridLayout,
-  StyledP,
-  RemoveButton
+  StyledP
 
 } from "../styles/stylecomponents/StyledComponentsLibrary"
+import { BaseCard } from "../styles/components/Card.styles"
+import { GridLayout } from "../styles/components/Layout.styles"
+import { RemoveButton } from "../styles/components/Button.styles"
 
 import { FaTrash } from "react-icons/fa6"
 
@@ -66,22 +65,21 @@ const PlantList = ({ token }) => {
 
   if (loading) {
     return (
-      <PlantListContainer>
-        <StyledP>Laddar din trädgård.. 🌱</StyledP>
-      </PlantListContainer>
+
+      <StyledP>Laddar din trädgård.. 🌱</StyledP>
+
     )
   }
 
   if (error) {
     return (
-      <PlantListContainer>
-        <ErrorMessage>{error}</ErrorMessage>
-      </PlantListContainer>
+      <ErrorMessage>{error}</ErrorMessage>
+
     )
   }
 
   return (
-    <PlantListContainer>
+    <div>
       {savedPlants.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px' }}>
           <StyledP>Din trädgård är tom ännu! 🌱</StyledP>
@@ -90,7 +88,7 @@ const PlantList = ({ token }) => {
       ) : (
         <GridLayout>
           {savedPlants.map((entry) => (
-            <ThemedPlantCard key={entry._id}>
+            <BaseCard key={entry._id}>
               <PlantImage
                 src={entry.plant.imageUrl || "/Frog.jpg"}
                 alt={entry.plant.swedishName || entry.plant.commonName}
@@ -170,11 +168,11 @@ const PlantList = ({ token }) => {
                   <FaTrash />
                 </RemoveButton>
               </PlantContent>
-            </ThemedPlantCard>
+            </BaseCard>
           ))}
         </GridLayout>
       )}
-    </PlantListContainer>
+    </div>
   )
 }
 

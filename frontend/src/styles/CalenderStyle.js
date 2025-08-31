@@ -1,5 +1,6 @@
 import styled from "styled-components"
-import { PrimaryButton } from "../styles/stylecomponents/StyledComponentsLibrary"
+import { PrimaryButton } from "../styles/components/Button.styles"
+
 
 export const CalendarContainer = styled.div`
   width: 100%;

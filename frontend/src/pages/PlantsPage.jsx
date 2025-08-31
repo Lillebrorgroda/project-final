@@ -2,10 +2,6 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import plantsAPI from "../api/plants"
 import {
-  Container,
-  PageContainer,
-  PlantListContainer,
-  PlantSearchCard,
   PlantImage,
   PlantSearchHeader,
   PlantName,
@@ -13,17 +9,17 @@ import {
   ApiBadge,
   PlantDetails,
   DetailTag,
-  SearchBar,
-  StyledInput,
-  PrimaryButton,
   SearchSection,
   SearchInfo,
   ErrorMessage,
-  GridLayout,
-  ThemedPlantCard,
   StyledP,
 
 } from "../styles/stylecomponents/StyledComponentsLibrary"
+import { FullscreenWrapper, PageWrapper, ScrollableWrapper } from "../styles/components/Layout.styles"
+import { PrimaryButton } from "../styles/components/Button.styles"
+import { BaseCard, PlantSearchCard } from "../styles/components/Card.styles"
+import { GridLayout } from "../styles/components/Layout.styles"
+import { StyledInput, SearchBar } from "../styles/components/Form.styles"
 
 const PlantPage = ({ token }) => {
   // States
@@ -132,10 +128,8 @@ const PlantPage = ({ token }) => {
   }
 
   return (
-    <Container>
-
-
-      <PageContainer>
+    <FullscreenWrapper>
+      <PageWrapper>
 
         {/* Header */}
         <img className="plant-image" src="/Broccoli.jpg" alt="Broccoli" />
@@ -166,7 +160,7 @@ const PlantPage = ({ token }) => {
 
           </SearchBar>
         </SearchSection>
-      </PageContainer>
+      </PageWrapper>
 
       {/* Messages */}
       {loading && <StyledP>Söker...</StyledP>}
@@ -205,7 +199,7 @@ const PlantPage = ({ token }) => {
       }
 
       {/* Plant List */}
-      <PlantListContainer>
+      <ScrollableWrapper>
         {plants.length > 0 ? (
           <GridLayout>
             {plants.map((plant) => (
@@ -221,7 +215,7 @@ const PlantPage = ({ token }) => {
                   />
                 )}
 
-                <ThemedPlantCard>
+                <BaseCard>
                   <PlantSearchHeader>
                     <div>
                       <PlantName>{plant.swedishName || plant.commonName}</PlantName>
@@ -281,7 +275,7 @@ const PlantPage = ({ token }) => {
                         plant.isFromAPI ? '🌱 Lägg till i min trädgård' : '❤️ Spara som favorit'}
                     </PrimaryButton>
                   )}
-                </ThemedPlantCard>
+                </BaseCard>
               </PlantSearchCard>
             ))}
           </GridLayout>
@@ -295,9 +289,9 @@ const PlantPage = ({ token }) => {
             </StyledP>
           )
         )}
-      </PlantListContainer>
+      </ScrollableWrapper>
 
-    </Container>
+    </FullscreenWrapper>
   )
 }
 

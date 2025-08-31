@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
-import { FaHouse, FaMagnifyingGlass, FaSeedling, FaCalendarDays } from "react-icons/fa6"
-import { FooterStyled, FooterIcon } from "../styles/stylecomponents/StyledComponentsLibrary"
+import { FaHouse, FaMagnifyingGlass, FaSeedling } from "react-icons/fa6"
+import { FooterStyled, FooterIcon } from "../styles/components/Navigation.styles"
 
 const Footer = () => {
   const navigate = useNavigate()

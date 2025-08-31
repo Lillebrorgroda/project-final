@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authAPI from "../api/auth";
-import { Container, PageContainer, PrimaryButton, StyledInput } from "../styles/stylecomponents/StyledComponentsLibrary";
+import { StyledInput } from "../styles/components/Form.styles"
+import { FullscreenWrapper, PageWrapper } from "../styles/components/Layout.styles";
+import { PrimaryButton } from "../styles/components/Button.styles";
 
 
 //Add a loading state
@@ -30,8 +32,8 @@ const SignupPage = ({ setToken, setUsername }) => {
 
   return (
 
-    <Container>
-      <PageContainer>
+    <FullscreenWrapper>
+      <PageWrapper>
         <i className="bx bx-chevron-left" onClick={() => navigate("/")} style={{ cursor: "pointer" }}></i>
         <img className="plant-image" src="/Broccoli.jpg" alt="Broccoli" />
         <h2>Registrera dig</h2>
@@ -58,8 +60,8 @@ const SignupPage = ({ setToken, setUsername }) => {
         />
         <PrimaryButton onClick={handleSignup}>Registrera</PrimaryButton>
         <p>{message}</p>
-      </PageContainer>
-    </Container>
+      </PageWrapper>
+    </FullscreenWrapper>
   )
 }
 

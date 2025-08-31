@@ -1,7 +1,7 @@
 
 import { useNavigate } from "react-router-dom";
 import PlantList from "../components/PlantList"
-import { Container, PageContainer } from "../styles/stylecomponents/StyledComponentsLibrary";
+import { FullscreenWrapper, PageWrapper } from "../styles/components/Layout.styles";
 
 
 
@@ -13,8 +13,8 @@ const MyPlantsPage = () => {
   return (
 
 
-    <Container>
-      <PageContainer>
+    <FullscreenWrapper>
+      <PageWrapper>
 
         <i className="bx bx-chevron-left" onClick={() => navigate("/")}></i>
         <img className="plant-image" src="/Broccoli.jpg" alt="Broccoli" />
@@ -29,8 +29,8 @@ const MyPlantsPage = () => {
 
 
         <PlantList token={token} />
-      </PageContainer>
-    </Container>
+      </PageWrapper>
+    </FullscreenWrapper>
 
 
 

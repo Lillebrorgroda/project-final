@@ -6,7 +6,7 @@ import { FaSignOutAlt } from "react-icons/fa";
 import { ThemeProvider } from "styled-components";
 import GlobalStyle from "./styles/GlobalStyle"
 import theme from "./styles/theme"
-import { FooterIcon, Header } from "./styles/stylecomponents/StyledComponentsLibrary";
+import { FooterIcon, Header } from "./styles/components/Navigation.styles";
 import LandingPage from "./pages/LandingPage";
 import SignUpPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";

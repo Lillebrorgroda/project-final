@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authAPI from "../api/auth";
-import { Container, PageContainer, PrimaryButton, StyledInput } from "../styles/stylecomponents/StyledComponentsLibrary";
+import { FullscreenWrapper, PageWrapper } from "../styles/components/Layout.styles";
+import { PrimaryButton } from "../styles/components/Button.styles";
+import { StyledInput } from "../styles/components/Form.styles";
 
 const LoginPage = ({ setToken, setUsername }) => {
   const [email, setEmail] = useState("");
@@ -23,8 +25,8 @@ const LoginPage = ({ setToken, setUsername }) => {
   };
 
   return (
-    <Container>
-      <PageContainer>
+    <FullscreenWrapper>
+      <PageWrapper>
         <img className="plant-image" src="/Broccoli.jpg" alt="Broccoli" />
         <h2>Logga in</h2>
         <StyledInput
@@ -43,8 +45,8 @@ const LoginPage = ({ setToken, setUsername }) => {
           onChange={(e) => setPassword(e.target.value)}
         />
         <PrimaryButton onClick={handleLogin}>Logga in</PrimaryButton>
-      </PageContainer>
-    </Container>
+      </PageWrapper>
+    </FullscreenWrapper>
   );
 };
 
