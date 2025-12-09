@@ -32,13 +32,11 @@ const App = () => {
 
   useEffect(() => {
     const savedToken = localStorage.getItem("token")
-    console.log('Loading token from localStorage:', savedToken)
+
     if (savedToken) {
       setToken(savedToken);
     }
   }, []);
-
-  console.log('Current token in App:', token)
 
   return (
     <ThemeProvider theme={theme}>
