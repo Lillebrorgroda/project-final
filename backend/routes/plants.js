@@ -12,8 +12,6 @@ const API_KEY = process.env.PERENUAL_API_KEY
 // Function to search in API as fallback
 const searchPlantInAPI = async (searchTerm) => {
   try {
-    console.log(`🔍 Searching API for: "${searchTerm}"`)
-
     const response = await axios.get(`https://perenual.com/api/v2/species-list`, {
       params: {
         key: API_KEY,
@@ -23,7 +21,6 @@ const searchPlantInAPI = async (searchTerm) => {
     })
 
     const apiPlants = response.data.data || []
-    console.log(`📦 API returned ${apiPlants.length} results`)
 
     // Convert API results to our format
     return apiPlants.map(apiPlant => ({
@@ -60,8 +57,6 @@ plantRouter.get("/plants", async (req, res) => {
   try {
     const { search, startMonth, endMonth, companion, sunlight, watering, includeAPI } = req.query
     const query = {}
-
-    console.log("🔍 Incoming query params", req.query)
 
     // Text search on name or scientific name
     if (search && search.trim()) {
@@ -110,42 +105,37 @@ plantRouter.get("/plants", async (req, res) => {
       query.watering = { $in: [watering] }
     }
 
-    console.log("📊 Filters sent to MongoDB:", JSON.stringify(query, null, 2))
-
     // Search database first
     const plants = await Plant.find(query).limit(50)
-    console.log(`📊 Database hits: ${plants.length}`)
 
     let allResults = plants
     let apiResults = []
 
     // If no database results AND there's a search term, search API
     if (plants.length === 0 && search && search.trim() && includeAPI !== 'false') {
-      console.log("🌐 No database results, searching API as fallback...")
       apiResults = await searchPlantInAPI(search.trim())
 
       if (apiResults.length > 0) {
-        console.log(`✨ Found ${apiResults.length} results in API`)
         allResults = [...plants, ...apiResults]
       }
     }
 
     // Debug if no hits at all
     if (allResults.length === 0) {
-      console.log("⚠️ No hits found in either database or API.")
+
+      console.error("⚠️ No hits found in either database or API.")
 
       // Debug: Show what's in the database
       const totalCount = await Plant.countDocuments({})
-      console.log(`📢 Total plants in database: ${totalCount}`)
 
       if (totalCount > 0) {
         const sample = await Plant.findOne().lean()
-        console.log("🔍 Example plant in database:", {
+        return {
           scientificName: sample?.scientificName,
           swedishName: sample?.swedishName,
           sunlight: sample?.sunlight,
           watering: sample?.watering
-        })
+        }
       }
     }
 

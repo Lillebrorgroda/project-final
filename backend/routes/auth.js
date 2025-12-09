@@ -77,7 +77,6 @@ router.post("/signup", async (req, res) => {
       accessToken: newUser.accessToken,
     })
   } catch (error) {
-    console.log("Signup error:", err)
     res.status(500).json({
       success: false,
       message: "Could not create user",
