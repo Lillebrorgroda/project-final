@@ -24,7 +24,7 @@ const GlobalStyle = createGlobalStyle`
   /* Container för 3D-effekt som i din ursprungliga CSS */
   .container {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     background-color: ${({ theme }) => theme.colors.backgroundAlt};
     display: grid;
     place-items: center;

@@ -36,7 +36,7 @@ export const FooterIcon = styled.div`
 
 // Footer komponenter
 export const FooterStyled = styled.footer`
-position: fixed;
+//position: fixed;
   bottom: 0;
   width: 100%;
   background-color: ${({ theme }) => theme.colors.backgroundAlt};

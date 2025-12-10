@@ -25,8 +25,8 @@ export const ScrollableWrapper = styled(BaseWrapper)`
   max-width: 1200px;
   margin: 0 auto;
   min-height: 60vh; 
-  max-height: 60vh;
-  overflow-y: auto;
+  max-height: none;
+  overflow-y: visible;
   
   &::-webkit-scrollbar {
     width: 8px;
