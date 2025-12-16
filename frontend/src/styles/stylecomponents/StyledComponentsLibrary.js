@@ -123,7 +123,7 @@ export const PlantFacts = styled.div`
     font-family: ${({ theme }) => theme.fonts.body};
 
     strong {
-      color: ${({ theme }) => theme.colors.primary};
+      color: ${({ theme }) => theme.colors.text};
       font-weight: 600;
     }
   }
