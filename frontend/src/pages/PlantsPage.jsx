@@ -131,173 +131,175 @@ const PlantPage = ({ token }) => {
   }
 
   return (
-    <FullscreenWrapper>
-      <PageWrapper>
+    <main>
+      <FullscreenWrapper>
+        <PageWrapper>
 
-        {/* Header */}
-        <img className="plant-image" src="/Broccoli.jpg" alt="Broccoli" />
-        <h2>
-          Sök växter
-        </h2>
+          {/* Header */}
+          <img className="plant-image" src="/Broccoli.jpg" alt="Broccoli" />
+          <h2>
+            Sök växter
+          </h2>
 
-        {/* Search Section */}
-        <SearchSection>
-          <SearchBar>
-            <StyledInput
-              type="text"
-              aria-label="Sökfält"
-              placeholder="Sök på namn eller vetenskapligt namn"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            />
-            <PrimaryButton
-              onClick={handleSearch}
-              disabled={loading}
-              style={{ marginLeft: '10px', whiteSpace: 'nowrap' }}
-            >
-              {loading ? "Söker..." : "Sök"}
-            </PrimaryButton>
+          {/* Search Section */}
+          <SearchSection>
+            <SearchBar>
+              <StyledInput
+                type="text"
+                aria-label="Sökfält"
+                placeholder="Sök på namn eller vetenskapligt namn"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              />
+              <PrimaryButton
+                onClick={handleSearch}
+                disabled={loading}
+                style={{ marginLeft: '10px', whiteSpace: 'nowrap' }}
+              >
+                {loading ? "Söker..." : "Sök"}
+              </PrimaryButton>
 
 
 
-          </SearchBar>
-        </SearchSection>
-      </PageWrapper>
+            </SearchBar>
+          </SearchSection>
+        </PageWrapper>
 
-      {/* Messages */}
-      {loading && <StyledP>Söker...</StyledP>}
-      {error && <ErrorMessage>{error}</ErrorMessage>}
-      {
-        message && (
-          <div style={{
-            textAlign: 'center',
-            padding: '15px',
-            background: '#d4edda',
-            color: '#155724',
-            borderRadius: '8px',
-            margin: '20px 0',
-            fontSize: '1.4rem'
-          }}>
-            {message}
-          </div>
-        )
-      }
+        {/* Messages */}
+        {loading && <StyledP>Söker...</StyledP>}
+        {error && <ErrorMessage>{error}</ErrorMessage>}
+        {
+          message && (
+            <div style={{
+              textAlign: 'center',
+              padding: '15px',
+              background: '#d4edda',
+              color: '#155724',
+              borderRadius: '8px',
+              margin: '20px 0',
+              fontSize: '1.4rem'
+            }}>
+              {message}
+            </div>
+          )
+        }
 
-      {/* Search Info */}
-      {
-        searchInfo && (
-          <SearchInfo>
-            <p>
-              Hittade {searchInfo.total} växter
-              {searchInfo.searchTerm && ` för "${searchInfo.searchTerm}"`}
-            </p>
-            {searchInfo.searchedInAPI && (
-              <p className="api-info">
-                📡 {searchInfo.dbCount} från din databas, {searchInfo.apiCount} från extern databas
+        {/* Search Info */}
+        {
+          searchInfo && (
+            <SearchInfo>
+              <p>
+                Hittade {searchInfo.total} växter
+                {searchInfo.searchTerm && ` för "${searchInfo.searchTerm}"`}
               </p>
-            )}
-          </SearchInfo>
-        )
-      }
-
-      {/* Plant List */}
-      {/*<ScrollableWrapper>*/}
-      {plants.length > 0 ? (
-        <GridLayout>
-          {plants.map((plant) => (
-            <BaseCard
-              key={plant._id}
-              className={plant.isFromAPI ? 'from-api' : 'from-db'}
-            >
-              {plant.imageUrl && (
-                <PlantImage
-                  src={plant.imageUrl}
-                  alt={plant.swedishName || plant.commonName}
-                  onError={(e) => { e.target.style.display = 'none' }}
-                />
+              {searchInfo.searchedInAPI && (
+                <p className="api-info">
+                  📡 {searchInfo.dbCount} från din databas, {searchInfo.apiCount} från extern databas
+                </p>
               )}
+            </SearchInfo>
+          )
+        }
 
-              <PlantContent>
-                <PlantHeader>
-                  <div>
-                    <PlantName>{plant.swedishName || plant.commonName}</PlantName>
-                    {plant.scientificName && (
-                      <ScientificName>{plant.scientificName}</ScientificName>
-                    )}
-                  </div>
-                  {plant.isFromAPI && (
-                    <ApiBadge>Extern källa</ApiBadge>
-                  )}
-                </PlantHeader>
-
-                <PlantFacts>
-
-                  {plant.description && (
-                    <StyledP>
-                      {plant.description.substring(0, 150)}
-                      {plant.description.length > 150 ? '...' : ''}
-                    </StyledP>
-                  )}
-
-                  <PlantDetails>
-                    {plant.sunlight && plant.sunlight.length > 0 && (
-                      <DetailTag>
-                        ☀️ {plant.sunlight.join(', ')}
-                      </DetailTag>
-                    )}
-                    {plant.watering && plant.watering.length > 0 && (
-                      <DetailTag>
-                        💧 {plant.watering.join(', ')}
-                      </DetailTag>
-                    )}
-                    {plant.isEdible && (
-                      <DetailTag className="edible">
-                        🍽️ Ätbar
-                      </DetailTag>
-                    )}
-                  </PlantDetails>
-
-                  {plant.companionPlantNames && plant.companionPlantNames.length > 0 && (
-                    <StyledP>
-                      <strong>Kompanjoner:</strong> {plant.companionPlantNames.join(', ')}
-                    </StyledP>
-                  )}
-                </PlantFacts>
-
-                {token && (
-                  <PrimaryButton
-                    className={plant.isFromAPI ? 'save-to-garden' : 'save-as-favorite'}
-                    onClick={() => handleSavePlant(plant)}
-                    disabled={plant.isSaved}
-                    style={{
-                      backgroundColor: plant.isSaved ? '#28a745' :
-                        plant.isFromAPI ? '#007bff' : '#6f42c1',
-                      cursor: plant.isSaved ? 'default' : 'pointer'
-                    }}
-
-                  >
-                    {plant.isSaved ? '✅ Sparad!' :
-                      plant.isFromAPI ? '🌱 Lägg till i min trädgård' : '❤️ Spara som favorit'}
-                  </PrimaryButton>
+        {/* Plant List */}
+        {/*<ScrollableWrapper>*/}
+        {plants.length > 0 ? (
+          <GridLayout>
+            {plants.map((plant) => (
+              <BaseCard
+                key={plant._id}
+                className={plant.isFromAPI ? 'from-api' : 'from-db'}
+              >
+                {plant.imageUrl && (
+                  <PlantImage
+                    src={plant.imageUrl}
+                    alt={plant.swedishName || plant.commonName}
+                    onError={(e) => { e.target.style.display = 'none' }}
+                  />
                 )}
-              </PlantContent>
-            </BaseCard>
-          ))}
-        </GridLayout>
-      ) : (
-        !loading && searchInfo && (
-          <StyledP>
-            {searchInfo.searchedInAPI
-              ? "Inga växter hittades varken i din databas eller extern databas."
-              : "Inga växter hittades i databasen. Prova att aktivera extern sökning."
-            }
-          </StyledP>
-        )
-      )}
-      {/*</ScrollableWrapper>*/}
 
-    </FullscreenWrapper>
+                <PlantContent>
+                  <PlantHeader>
+                    <div>
+                      <PlantName>{plant.swedishName || plant.commonName}</PlantName>
+                      {plant.scientificName && (
+                        <ScientificName>{plant.scientificName}</ScientificName>
+                      )}
+                    </div>
+                    {plant.isFromAPI && (
+                      <ApiBadge>Extern källa</ApiBadge>
+                    )}
+                  </PlantHeader>
+
+                  <PlantFacts>
+
+                    {plant.description && (
+                      <StyledP>
+                        {plant.description.substring(0, 150)}
+                        {plant.description.length > 150 ? '...' : ''}
+                      </StyledP>
+                    )}
+
+                    <PlantDetails>
+                      {plant.sunlight && plant.sunlight.length > 0 && (
+                        <DetailTag>
+                          ☀️ {plant.sunlight.join(', ')}
+                        </DetailTag>
+                      )}
+                      {plant.watering && plant.watering.length > 0 && (
+                        <DetailTag>
+                          💧 {plant.watering.join(', ')}
+                        </DetailTag>
+                      )}
+                      {plant.isEdible && (
+                        <DetailTag className="edible">
+                          🍽️ Ätbar
+                        </DetailTag>
+                      )}
+                    </PlantDetails>
+
+                    {plant.companionPlantNames && plant.companionPlantNames.length > 0 && (
+                      <StyledP>
+                        <strong>Kompanjoner:</strong> {plant.companionPlantNames.join(', ')}
+                      </StyledP>
+                    )}
+                  </PlantFacts>
+
+                  {token && (
+                    <PrimaryButton
+                      className={plant.isFromAPI ? 'save-to-garden' : 'save-as-favorite'}
+                      onClick={() => handleSavePlant(plant)}
+                      disabled={plant.isSaved}
+                      style={{
+                        backgroundColor: plant.isSaved ? '#28a745' :
+                          plant.isFromAPI ? '#007bff' : '#6f42c1',
+                        cursor: plant.isSaved ? 'default' : 'pointer'
+                      }}
+
+                    >
+                      {plant.isSaved ? '✅ Sparad!' :
+                        plant.isFromAPI ? '🌱 Lägg till i min trädgård' : '❤️ Spara som favorit'}
+                    </PrimaryButton>
+                  )}
+                </PlantContent>
+              </BaseCard>
+            ))}
+          </GridLayout>
+        ) : (
+          !loading && searchInfo && (
+            <StyledP>
+              {searchInfo.searchedInAPI
+                ? "Inga växter hittades varken i din databas eller extern databas."
+                : "Inga växter hittades i databasen. Prova att aktivera extern sökning."
+              }
+            </StyledP>
+          )
+        )}
+        {/*</ScrollableWrapper>*/}
+
+      </FullscreenWrapper>
+    </main>
   )
 }
 

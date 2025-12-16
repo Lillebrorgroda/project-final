@@ -12,14 +12,14 @@ const MyPlantsPage = () => {
   const token = localStorage.getItem("token")
   return (
 
+    <main>
+      <FullscreenWrapper>
+        <PageWrapper>
 
-    <FullscreenWrapper>
-      <PageWrapper>
-
-        <i className="bx bx-chevron-left" onClick={() => navigate("/")}></i>
-        <img className="plant-image" src="/Broccoli.jpg" alt="Broccoli" />
-        <h2>Mina växter</h2>
-        {/**<div> Add your own plants 
+          <i className="bx bx-chevron-left" onClick={() => navigate("/")}></i>
+          <img className="plant-image" src="/Broccoli.jpg" alt="Broccoli" />
+          <h2>Mina växter</h2>
+          {/**<div> Add your own plants 
             <i className="fa-solid fa-plus"></i>
             <p>Lägg till egna plantor</p>
             <input type="text" />
@@ -28,11 +28,11 @@ const MyPlantsPage = () => {
 
 
 
-        <PlantList token={token} />
-      </PageWrapper>
-    </FullscreenWrapper>
+          <PlantList token={token} />
+        </PageWrapper>
+      </FullscreenWrapper>
 
-
+    </main>
 
   )
 }

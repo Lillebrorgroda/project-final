@@ -31,37 +31,38 @@ const SignupPage = ({ setToken, setUsername }) => {
   }
 
   return (
-
-    <FullscreenWrapper>
-      <PageWrapper>
-        <i className="bx bx-chevron-left" onClick={() => navigate("/")} style={{ cursor: "pointer" }}></i>
-        <img className="plant-image" src="/Broccoli.jpg" alt="Broccoli" />
-        <h2>Registrera dig</h2>
-        <StyledInput
-          type="text"
-          aria-label="Användarnamn"
-          placeholder="Användarnamn"
-          value={username}
-          onChange={(e) => setUsernameLocal(e.target.value)}
-        />
-        <StyledInput
-          type="email"
-          aria-label="e-post"
-          placeholder="E-post"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <StyledInput
-          type="password"
-          aria-label="lösenord"
-          placeholder="Lösenord"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <PrimaryButton onClick={handleSignup}>Registrera</PrimaryButton>
-        <p>{message}</p>
-      </PageWrapper>
-    </FullscreenWrapper>
+    <main>
+      <FullscreenWrapper>
+        <PageWrapper>
+          <i className="bx bx-chevron-left" onClick={() => navigate("/")} style={{ cursor: "pointer" }}></i>
+          <img className="plant-image" src="/Broccoli.jpg" alt="Broccoli" />
+          <h2>Registrera dig</h2>
+          <StyledInput
+            type="text"
+            aria-label="Användarnamn"
+            placeholder="Användarnamn"
+            value={username}
+            onChange={(e) => setUsernameLocal(e.target.value)}
+          />
+          <StyledInput
+            type="email"
+            aria-label="e-post"
+            placeholder="E-post"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <StyledInput
+            type="password"
+            aria-label="lösenord"
+            placeholder="Lösenord"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <PrimaryButton onClick={handleSignup}>Registrera</PrimaryButton>
+          <p>{message}</p>
+        </PageWrapper>
+      </FullscreenWrapper>
+    </main>
   )
 }
 

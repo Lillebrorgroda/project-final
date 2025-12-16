@@ -25,28 +25,30 @@ const LoginPage = ({ setToken, setUsername }) => {
   };
 
   return (
-    <FullscreenWrapper>
-      <PageWrapper>
-        <img className="plant-image" src="/Broccoli.jpg" alt="Broccoli" />
-        <h2>Logga in</h2>
-        <StyledInput
-          type="email"
-          aria-label="email"
-          placeholder="E-post"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+    <main>
+      <FullscreenWrapper>
+        <PageWrapper>
+          <img className="plant-image" src="/Broccoli.jpg" alt="Broccoli" />
+          <h2>Logga in</h2>
+          <StyledInput
+            type="email"
+            aria-label="email"
+            placeholder="E-post"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
 
-        />
-        <StyledInput
-          type="password"
-          aria-label="lösenord"
-          placeholder="Lösenord"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <PrimaryButton onClick={handleLogin}>Logga in</PrimaryButton>
-      </PageWrapper>
-    </FullscreenWrapper>
+          />
+          <StyledInput
+            type="password"
+            aria-label="lösenord"
+            placeholder="Lösenord"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <PrimaryButton onClick={handleLogin}>Logga in</PrimaryButton>
+        </PageWrapper>
+      </FullscreenWrapper>
+    </main>
   );
 };
 
