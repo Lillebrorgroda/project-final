@@ -271,12 +271,6 @@ const PlantPage = ({ token }) => {
                       className={plant.isFromAPI ? 'save-to-garden' : 'save-as-favorite'}
                       onClick={() => handleSavePlant(plant)}
                       disabled={plant.isSaved}
-                      style={{
-                        backgroundColor: plant.isSaved ? '#28a745' :
-                          plant.isFromAPI ? '#007bff' : '#6f42c1',
-                        cursor: plant.isSaved ? 'default' : 'pointer'
-                      }}
-
                     >
                       {plant.isSaved ? '✅ Sparad!' :
                         plant.isFromAPI ? '🌱 Lägg till i min trädgård' : '❤️ Spara som favorit'}
